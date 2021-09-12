@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://guo.moe/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://guo.moe/favicon.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"guo.moe","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="此文章为 Klee-CTF 专题  web1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Klee-CTF】CTF.Show Web入门 信息收集">
+<meta property="og:url" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info.html">
+<meta property="og:site_name" content="果果说">
+<meta property="og:description" content="此文章为 Klee-CTF 专题  web1">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%201.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%202.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%203.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%204.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%205.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%206.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%207.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%208.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%209.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2010.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2011.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2012.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2013.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2014.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2015.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2016.png">
+<meta property="article:published_time" content="2021-08-02T04:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-30T12:28:36.000Z">
+<meta property="article:author" content="Guoguo">
+<meta property="article:tag" content="果果说">
+<meta property="article:tag" content="果果的博客">
+<meta property="article:tag" content="Guoguo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info/Untitled.png">
+
+<link rel="canonical" href="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【Klee-CTF】CTF.Show Web入门 信息收集 | 果果说</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-69554402-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-69554402-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="果果说" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">果果说</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Guoguo's Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/links/" rel="section"><i class="fa fa-user fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://guo.moe/favicon.jpg">
+      <meta itemprop="name" content="Guoguo">
+      <meta itemprop="description" content="找不到路，就自己走一条出来。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="果果说">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【Klee-CTF】CTF.Show Web入门 信息收集
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-02 12:00:00" itemprop="dateCreated datePublished" datetime="2021-08-02T12:00:00+08:00">2021-08-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-30 20:28:36" itemprop="dateModified" datetime="2021-08-30T20:28:36+08:00">2021-08-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">技术篇</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>此文章为 Klee-CTF 专题</p>
+</blockquote>
+<h1 id="web1"><a href="#web1" class="headerlink" title="web1"></a>web1</h1><span id="more"></span>
+
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled.png"></p>
+<p>右键查看源代码，发现flag</p>
+<h1 id="web2"><a href="#web2" class="headerlink" title="web2"></a>web2</h1><p>右键无法查看源代码，但你可以在地址栏添加 view-source:</p>
+<h1 id="web3"><a href="#web3" class="headerlink" title="web3"></a>web3</h1><p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%201.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%201.png"></p>
+<p>F12，藏在返回头部</p>
+<h1 id="web4"><a href="#web4" class="headerlink" title="web4"></a>web4</h1><p>访问 /robots.txt 获得内容</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">User-agent: *</span><br><span class="line">Disallow: /flagishere.txt</span><br></pre></td></tr></table></figure>
+
+<p>再访问 /flagishere.txt 获得flag</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%202.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%202.png"></p>
+<h1 id="web5"><a href="#web5" class="headerlink" title="web5"></a>web5</h1><p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%203.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%203.png"></p>
+<p>题目提示 phps 源码泄漏，访问 /index.phps 试试</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%204.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%204.png"></p>
+<p>获得flag</p>
+<h1 id="web6"><a href="#web6" class="headerlink" title="web6"></a>web6</h1><p>题目提示 <code>解压源码到当前目录，测试正常，收工</code></p>
+<p>一般运维会将网站目录压缩为 <a target="_blank" rel="noopener" href="http://www.zip/">www.zip</a> ，访问后获得压缩包</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%205.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%205.png"></p>
+<p>解压获得flag</p>
+<h1 id="web7"><a href="#web7" class="headerlink" title="web7"></a>web7</h1><p><code>版本控制很重要，但不要部署到生产环境更重要。</code></p>
+<p>关键词：版本控制，访问 /.git/</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%206.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%206.png"></p>
+<p>直接获得flag</p>
+<h1 id="web8"><a href="#web8" class="headerlink" title="web8"></a>web8</h1><p>要求同上，版本控制一般有 .git 或者 .svn， 访问.svn</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%207.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%207.png"></p>
+<h1 id="web9"><a href="#web9" class="headerlink" title="web9"></a>web9</h1><p>关键词：vim</p>
+<p>vim 在未正常关闭的时候会生成 .swp 文件</p>
+<p>访问 /index.php.swp</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%208.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%208.png"></p>
+<h1 id="web10"><a href="#web10" class="headerlink" title="web10"></a>web10</h1><p>关键词：cookie</p>
+<p>使用 editthiscookie 打开查看得</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%209.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%209.png"></p>
+<h1 id="web11"><a href="#web11" class="headerlink" title="web11"></a>web11</h1><p>关键词：域名隐藏信息</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[root@Kelly ~]# nslookup </span><br><span class="line">&gt; set type=TXT</span><br><span class="line">&gt; ctfshow.com</span><br><span class="line"><span class="attr">Server</span>:         <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line"><span class="attr">Address</span>:        <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span>#<span class="number">53</span></span><br><span class="line"></span><br><span class="line">Non-authoritative answer:</span><br><span class="line">ctfshow.com     text = <span class="string">&quot;flag&#123;just_seesee&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">Authoritative answers can be found <span class="keyword">from</span>:</span><br><span class="line">&gt; exit</span><br></pre></td></tr></table></figure>
+
+<h1 id="web12"><a href="#web12" class="headerlink" title="web12"></a>web12</h1><p>访问 /robots.txt 获得内容</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">User-agent: *</span><br><span class="line">Disallow: <span class="regexp">/admin/</span></span><br></pre></td></tr></table></figure>
+
+<p>访问 /admin </p>
+<p>他404</p>
+<p>把我整不会了</p>
+<h1 id="web13"><a href="#web13" class="headerlink" title="web13"></a>web13</h1><p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2010.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2010.png"></p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2011.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2011.png"></p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2012.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2012.png"></p>
+<h1 id="web14"><a href="#web14" class="headerlink" title="web14"></a>web14</h1><p>提示中说明了 editor 翻找源代码发现有个/editor/uploads/xxx.png ，发现 /editor 可以直接访问</p>
+<p>访问后点击上传附件按钮，点击文件空间</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2013.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2013.png"></p>
+<p>发现 /var/www/html/nothinghere 存在文件 /fl000g.txt</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2014.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2014.png"></p>
+<p>根据路径访问，获得flag</p>
+<h1 id="web15"><a href="#web15" class="headerlink" title="web15"></a>web15</h1><p>在网页底部获得邮箱 <a href="mailto:1156631961@qq.com">1156631961@qq.com</a> ，qq号查询发现是西安的</p>
+<p>访问 /admin 忘记密码，填写西安，重置密码获得flag</p>
+<h1 id="web16"><a href="#web16" class="headerlink" title="web16"></a>web16</h1><p>访问 /tz.php ,点击phpinfo搜索flag</p>
+<h1 id="web18"><a href="#web18" class="headerlink" title="web18"></a>web18</h1><p>在控制台直接修改score，访问 /110.php 获得flag</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2015.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2015.png"></p>
+<h1 id="web19"><a href="#web19" class="headerlink" title="web19"></a>web19</h1><p>方向错了方向错了，我还想着我怎么解密呢，原来这题不用解密</p>
+<p>右键查看源代码，获取用户名和加密后的密码，填入输入框，在控制台输入$(“#loginForm”).submit(); 获取flag</p>
+<h1 id="web20"><a href="#web20" class="headerlink" title="web20"></a>web20</h1><p>这题没经验是真不会</p>
+<p>早期access存放路径 /db/db.mdb，访问后搜索</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2016.png" alt="CTF-Show-Get-Started-with-the-web-collect-info/Untitled%2016.png"></p>
+<h1 id="错漏补充"><a href="#错漏补充" class="headerlink" title="错漏补充"></a>错漏补充</h1><ul>
+<li><p>信息收集——装一些插件（待补充），写工具（知识武器化），写 CheckList</p>
+</li>
+<li><p>vim会产生 .swp / .swo / .swn ，gedit会产生 文件名～的备份文件名</p>
+</li>
+<li><p>webpack的反编译</p>
+</li>
+<li><p>svn信息泄漏工具 SvnExploit</p>
+</li>
+<li><p>Apache的php解析漏洞（CVE-2017-15715），上传文件gif文件头后路径结尾为 .php/ 可以使用</p>
+</li>
+<li><p>替换关键文件使用mv来覆盖</p>
+</li>
+<li><p>HTTP协议头部，常见的字段</p>
+</li>
+<li><p>搞安全的整个昵称</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/Pikachu-exercise.html" rel="prev" title="【Klee-CTF】 Pikachu 漏洞练习">
+      <i class="fa fa-chevron-left"></i> 【Klee-CTF】 Pikachu 漏洞练习
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/CTF-Show-Get-Started-with-the-web-collect-info-Extension.html" rel="next" title="【Klee-CTF】CTF.Show Web入门 信息收集 (Web补充)">
+      【Klee-CTF】CTF.Show Web入门 信息收集 (Web补充) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#web1"><span class="nav-number">1.</span> <span class="nav-text">web1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web2"><span class="nav-number">2.</span> <span class="nav-text">web2</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web3"><span class="nav-number">3.</span> <span class="nav-text">web3</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web4"><span class="nav-number">4.</span> <span class="nav-text">web4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web5"><span class="nav-number">5.</span> <span class="nav-text">web5</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web6"><span class="nav-number">6.</span> <span class="nav-text">web6</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web7"><span class="nav-number">7.</span> <span class="nav-text">web7</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web8"><span class="nav-number">8.</span> <span class="nav-text">web8</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web9"><span class="nav-number">9.</span> <span class="nav-text">web9</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web10"><span class="nav-number">10.</span> <span class="nav-text">web10</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web11"><span class="nav-number">11.</span> <span class="nav-text">web11</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web12"><span class="nav-number">12.</span> <span class="nav-text">web12</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web13"><span class="nav-number">13.</span> <span class="nav-text">web13</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web14"><span class="nav-number">14.</span> <span class="nav-text">web14</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web15"><span class="nav-number">15.</span> <span class="nav-text">web15</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web16"><span class="nav-number">16.</span> <span class="nav-text">web16</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web18"><span class="nav-number">17.</span> <span class="nav-text">web18</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web19"><span class="nav-number">18.</span> <span class="nav-text">web19</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web20"><span class="nav-number">19.</span> <span class="nav-text">web20</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%94%99%E6%BC%8F%E8%A1%A5%E5%85%85"><span class="nav-number">20.</span> <span class="nav-text">错漏补充</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Guoguo"
+      src="https://guo.moe/favicon.jpg">
+  <p class="site-author-name" itemprop="name">Guoguo</p>
+  <div class="site-description" itemprop="description">找不到路，就自己走一条出来。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/imguoguo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;imguoguo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:blog@guo.moe" title="E-Mail → mailto:blog@guo.moe"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Guoguo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/medium-zoom.min.js"></script>
+  <script src="/lib/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqusjs.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqus.js', () => {
+    window.dsqjs = new DisqusJS({
+      api       : 'https://disqus.guo.moe/api/' || 'https://disqus.com/api/',
+      apikey    : 'TRTXJqZLCwf51OCjLAd1u320K7DxrMxK37Ch9X2xFXy5Q4d2gdVBKeMT33qizKh9',
+      shortname : 'guoguoblog',
+      url       : "https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-collect-info.html",
+      identifier: "archives/CTF-Show-Get-Started-with-the-web-collect-info.html",
+      title     : "【Klee-CTF】CTF.Show Web入门 信息收集",
+    });
+  }, window.DisqusJS);
+});
+</script>
+
+    </div>
+<script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

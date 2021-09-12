@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://guo.moe/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://guo.moe/favicon.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"guo.moe","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在升级到 Windows 10 1909 以后，XPS 的续航从开着省电模式5个小时骤降至两个半小时，比人家游戏本还差，正好也苦于 Windows 10 的更新体验，再加上总是出一些莫名其妙的bug（比如说双屏情况下鼠标和键盘总是会突然卡一下，和手环、手机经常连不上）于是就干脆换成 Windows LTSC 2019 试试。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows 10 LTSC 初体验">
+<meta property="og:url" content="https://guo.moe/archives/Windows-10-LTSC-2019.html">
+<meta property="og:site_name" content="果果说">
+<meta property="og:description" content="在升级到 Windows 10 1909 以后，XPS 的续航从开着省电模式5个小时骤降至两个半小时，比人家游戏本还差，正好也苦于 Windows 10 的更新体验，再加上总是出一些莫名其妙的bug（比如说双屏情况下鼠标和键盘总是会突然卡一下，和手环、手机经常连不上）于是就干脆换成 Windows LTSC 2019 试试。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-12-05T04:56:01.000Z">
+<meta property="article:modified_time" content="2021-06-11T09:18:07.000Z">
+<meta property="article:author" content="Guoguo">
+<meta property="article:tag" content="Windows 10">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://guo.moe/archives/Windows-10-LTSC-2019.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Windows 10 LTSC 初体验 | 果果说</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-69554402-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-69554402-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="果果说" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">果果说</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Guoguo's Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/links/" rel="section"><i class="fa fa-user fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://guo.moe/archives/Windows-10-LTSC-2019.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://guo.moe/favicon.jpg">
+      <meta itemprop="name" content="Guoguo">
+      <meta itemprop="description" content="找不到路，就自己走一条出来。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="果果说">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Windows 10 LTSC 初体验
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-05 12:56:01" itemprop="dateCreated datePublished" datetime="2019-12-05T12:56:01+08:00">2019-12-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-11 17:18:07" itemprop="dateModified" datetime="2021-06-11T17:18:07+08:00">2021-06-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%97%A0%E8%81%8A%E5%90%90%E5%90%90%E6%A7%BD/" itemprop="url" rel="index"><span itemprop="name">无聊吐吐槽</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在升级到 Windows 10 1909 以后，XPS 的续航从开着省电模式5个小时骤降至两个半小时，比人家游戏本还差，正好也苦于 Windows 10 的更新体验，再加上总是出一些莫名其妙的bug（比如说双屏情况下鼠标和键盘总是会突然卡一下，和手环、手机经常连不上）于是就干脆换成 Windows LTSC 2019 试试。</p>
+<span id="more"></span>
+
+<p>在 msdn Itellyou 下载好 LTSC 的镜像以后，就开始了重装之旅。从 Windows 10 1909 专业工作站版直接安装不能够保留个人文件，于是把重要文件都移到了 NUC 上备份，开始重装。</p>
+<p>安装中途和普通安装差别不大，就是在安装过程中登录 Microsoft 账号需要使用学校或工作账号，不过在安装完毕后可以使用个人账号重新登陆，安装时先创建个人账号即可。</p>
+<p>安装后系统很干净，没有 Windows Store ，没有 Cortana， 没有 Mail</p>
+<p>这里的不保留任何个人文件，说是不保留，其实和U盘直接安装差不多，Program Files， Windows等文件夹删掉或移到 Windows.old 文件夹，Users 文件夹移到 Windows.old 文件夹，其他文件夹保留在原位置。</p>
+<h2 id="安装软件"><a href="#安装软件" class="headerlink" title="安装软件"></a>安装软件</h2><h3 id="Windows-Store"><a href="#Windows-Store" class="headerlink" title="Windows Store"></a>Windows Store</h3><p>作为 Windows 10 的铁哥，这玩意怎么能没有呢</p>
+<blockquote>
+<p>参照此处 <a target="_blank" rel="noopener" href="https://github.com/kkkgo/LTSC-Add-MicrosoftStore#%E4%B8%BAwindows-10-enterprise-ltsc%E5%A2%9E%E5%8A%A0%E5%BA%94%E7%94%A8%E5%95%86%E5%BA%97">为Windows 10 Enterprise LTSC增加应用商店</a></p>
+</blockquote>
+<p>安装完成后正常使用软件</p>
+<h3 id="Windows-Mail"><a href="#Windows-Mail" class="headerlink" title="Windows Mail"></a>Windows Mail</h3><pre><code class="Emmc">
+![/images/Article/Windows10LTSC/mail.png](/images/Article/Windows10LTSC/mail.png)
+
+[点击此处跳转下载](https://www.microsoft.com/en-us/p/mail-and-calendar/9wzdncrfhvqm?activetab=pivot:overviewtab)
+
+### Office
+
+SBM$ ，我的 MS 账号有 Office 365 的家庭版授权，但是一直无法激活 office 365，一激活就报没有 Office 365 的许可证，然后自动给我换成 Office 2019，而且 OneDrive 也一直只有5G，多次给 M$ 致电仍然不了了之，有几次打过去甚至直接把我电话挂了？？我TM
+
+![/images/Article/Windows10LTSC/MS.png](/images/Article/Windows10LTSC/MS.png)
+
+当场给他多打了几次，次次都说催工程师，结果到现在都还没给我回电。
+
+重装以后系统终于恢复之前的续航了，可喜可贺
+
+晒一张重装后的系统属性界面图
+
+![/images/Article/Windows10LTSC/Prop.png](/images/Article/Windows10LTSC/Prop.png)
+
+emmc 之前听说 XPS 续航挺好的来着，不知道为啥有点低于预期（小声逼逼
+</code></pre>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Windows-10/" rel="tag"># Windows 10</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/Hexo-migration.html" rel="prev" title="Hexo 迁移笔记">
+      <i class="fa fa-chevron-left"></i> Hexo 迁移笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/Docker-ArchLinux.html" rel="next" title="在 Docker 上使用 ArchLinux 容器">
+      在 Docker 上使用 ArchLinux 容器 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">安装软件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Windows-Store"><span class="nav-number">1.1.</span> <span class="nav-text">Windows Store</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Windows-Mail"><span class="nav-number">1.2.</span> <span class="nav-text">Windows Mail</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Guoguo"
+      src="https://guo.moe/favicon.jpg">
+  <p class="site-author-name" itemprop="name">Guoguo</p>
+  <div class="site-description" itemprop="description">找不到路，就自己走一条出来。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/imguoguo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;imguoguo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:blog@guo.moe" title="E-Mail → mailto:blog@guo.moe"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Guoguo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/medium-zoom.min.js"></script>
+  <script src="/lib/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqusjs.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqus.js', () => {
+    window.dsqjs = new DisqusJS({
+      api       : 'https://disqus.guo.moe/api/' || 'https://disqus.com/api/',
+      apikey    : 'TRTXJqZLCwf51OCjLAd1u320K7DxrMxK37Ch9X2xFXy5Q4d2gdVBKeMT33qizKh9',
+      shortname : 'guoguoblog',
+      url       : "https://guo.moe/archives/Windows-10-LTSC-2019.html",
+      identifier: "archives/Windows-10-LTSC-2019.html",
+      title     : "Windows 10 LTSC 初体验",
+    });
+  }, window.DisqusJS);
+});
+</script>
+
+    </div>
+<script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

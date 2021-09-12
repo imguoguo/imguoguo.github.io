@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://guo.moe/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://guo.moe/favicon.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"guo.moe","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言之前在工作室直播的时候，同学一直用的QQ直播，直播质量极其廉价，然后又不是很想用B站直播之类的，毕竟都是自己看，于是就萌生了要自建直播间供工作室大佬使用的想法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="搭建属于自己的直播间">
+<meta property="og:url" content="https://guo.moe/archives/Build-LiveRoom.html">
+<meta property="og:site_name" content="果果说">
+<meta property="og:description" content="前言之前在工作室直播的时候，同学一直用的QQ直播，直播质量极其廉价，然后又不是很想用B站直播之类的，毕竟都是自己看，于是就萌生了要自建直播间供工作室大佬使用的想法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guo.moe/images/Article/Live/Live1.png">
+<meta property="og:image" content="https://guo.moe/images/Article/Live/otome.png">
+<meta property="article:published_time" content="2019-12-31T01:46:01.000Z">
+<meta property="article:modified_time" content="2021-06-11T09:18:07.000Z">
+<meta property="article:author" content="Guoguo">
+<meta property="article:tag" content="瞎搞">
+<meta property="article:tag" content="直播">
+<meta property="article:tag" content="服务器">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guo.moe/images/Article/Live/Live1.png">
+
+<link rel="canonical" href="https://guo.moe/archives/Build-LiveRoom.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>搭建属于自己的直播间 | 果果说</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-69554402-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-69554402-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="果果说" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">果果说</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Guoguo's Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/links/" rel="section"><i class="fa fa-user fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://guo.moe/archives/Build-LiveRoom.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://guo.moe/favicon.jpg">
+      <meta itemprop="name" content="Guoguo">
+      <meta itemprop="description" content="找不到路，就自己走一条出来。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="果果说">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          搭建属于自己的直播间
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-31 09:46:01" itemprop="dateCreated datePublished" datetime="2019-12-31T09:46:01+08:00">2019-12-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-11 17:18:07" itemprop="dateModified" datetime="2021-06-11T17:18:07+08:00">2021-06-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">技术篇</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前在工作室直播的时候，同学一直用的QQ直播，直播质量极其廉价，然后又不是很想用B站直播之类的，毕竟都是自己看，于是就萌生了要自建直播间供工作室大佬使用的想法。</p>
+<span id="more"></span>
+
+<h1 id="安装直播服务器"><a href="#安装直播服务器" class="headerlink" title="安装直播服务器"></a>安装直播服务器</h1><h2 id="使用-Docker-安装-nginx-rtmp"><a href="#使用-Docker-安装-nginx-rtmp" class="headerlink" title="使用 Docker 安装 nginx-rtmp"></a>使用 Docker 安装 nginx-rtmp</h2><p>所谓万物皆可 docker，能 docker 的事就别找别的麻烦的，<del>反正学校服务器配置够高，用就是了</del>（</p>
+<p>开文件夹，配置 docker-compose.yml</p>
+<pre><code>version: &quot;3&quot;
+
+services:
+  nginx-rtmp:
+    container_name: &quot;nginx-rtmp&quot;
+    volumes:
+        - &quot;./conf/nginx.conf:/etc/nginx/nginx.conf&quot;
+        - &quot;./www:/usr/local/nginx/www&quot;
+    image: tiangolo/nginx-rtmp:latest
+    ports:
+        - &quot;1935:1935/tcp&quot;
+    environment:
+      TZ: &#39;Asia/Shanghai&#39;
+    restart: always
+    networks:
+        - docker-lemp
+
+networks:
+    docker-lemp:
+        external:
+            name: docker-lemp_default
+</code></pre>
+<p>这里这么搞是为了可以和我之前用的 docker-lemp 网络对接，当然你也可以直接将生成的流文件文件夹映射到本地的网站目录，这样更方便一点。顺带说一下，这个conf也要映射的原因是要修改默认配置文件。然后默认的1935端口给一下，大概差不多</p>
+<h2 id="通过编译安装-nginx-rtmp"><a href="#通过编译安装-nginx-rtmp" class="headerlink" title="** 通过编译安装 nginx-rtmp"></a>** 通过编译安装 nginx-rtmp</h2><p>参考此处资料进行使用，上面用了docker的就不用了</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/arut/nginx-rtmp-module">https://github.com/arut/nginx-rtmp-module</a></p>
+<h2 id="修改-nginx-conf"><a href="#修改-nginx-conf" class="headerlink" title="修改 nginx.conf"></a>修改 nginx.conf</h2><p>使用 docker 的在当前目录下创建 ./conf/nginx.conf</p>
+<p>编辑 nginx.conf ，修改为以下内容</p>
+<pre><code>worker_processes auto;
+rtmp_auto_push on;
+events &#123;&#125;
+http &#123;
+    server &#123;
+        listen 80;
+
+        location /hls &#123;
+            # Serve HLS fragments
+            types &#123;
+                application/vnd.apple.mpegurl m3u8;
+                video/mp2t ts;
+            &#125;
+            root /usr/local/nginx/www;
+            add_header Cache-Control no-cache;
+        &#125;
+    &#125;
+&#125;
+rtmp &#123;
+    server &#123;
+            listen 1935;
+            application live &#123;
+                live on;
+            &#125;
+            application hls &#123;
+                live on;
+                hls on;
+                hls_path /usr/local/nginx/www/hls;
+            &#125;
+     &#125;
+&#125;
+</code></pre>
+<h2 id="运行-Docker"><a href="#运行-Docker" class="headerlink" title="运行 Docker"></a>运行 Docker</h2><p>输入 sudo docker-compose up -d ，等到容器创建完毕完事～</p>
+<h1 id="推流"><a href="#推流" class="headerlink" title="推流"></a>推流</h1><p>nginx-rtmp 搭建好了以后，你就可以进行推流了。</p>
+<p>上面开 hls 是为了方便移动端设备直接访问，也是为了方便浏览器上观看直播。</p>
+<h2 id="OBS-推流"><a href="#OBS-推流" class="headerlink" title="OBS 推流"></a>OBS 推流</h2><p>打开推流设置页面，服务器填写 rtmp://&lt;IP地址&gt;:1935/hls ，密钥你自己喜欢，点击开始推流，看能不能推上</p>
+<p>推上了以后，会在 ./www/hls 文件夹中生成 &lt;密钥&gt;.m3u8 ，说明推流成功</p>
+<h2 id="FFMPEG-推流视频"><a href="#FFMPEG-推流视频" class="headerlink" title="FFMPEG 推流视频"></a>FFMPEG 推流视频</h2><p>不想直播了，但是想在直播间循环一些视频</p>
+<pre><code>ffmpeg -re -stream_loop -1 -i &lt;视频名&gt; -vcodec copy -acodec copy  -f flv rtmp://&lt;IP地址&gt;:1935/hls/&lt;密钥&gt;
+</code></pre>
+<h2 id="https-强迫症"><a href="#https-强迫症" class="headerlink" title="https 强迫症"></a>https 强迫症</h2><p>如果你有 https 强迫症，或者说不想看端口，你也可以套一层 nginx 反代，或者直接在上面的 nginx 改设置</p>
+<pre><code>location / &#123;
+        proxy_pass  http://nginx-rtmp/;
+
+        #Proxy Settings
+        proxy_redirect     off;
+        proxy_set_header   Host             $host;
+        proxy_set_header   X-Real-IP        $remote_addr;
+        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+        proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+        proxy_max_temp_file_size 0;
+        proxy_connect_timeout      90;
+        proxy_send_timeout         90;
+        proxy_read_timeout         90;
+        proxy_buffer_size          4k;
+        proxy_buffers              4 32k;
+        proxy_busy_buffers_size    64k;
+        proxy_temp_file_write_size 64k;
+   &#125;
+</code></pre>
+<p>1935 那噶哒端口也一样，写就对了</p>
+<p>然后串流地址就可以改成 <a target="_blank" rel="noopener" href="https://xxxxx/hls">https://xxxxx/hls</a> </p>
+<h1 id="前端"><a href="#前端" class="headerlink" title="前端"></a>前端</h1><p>参考资料：<a target="_blank" rel="noopener" href="http://dplayer.js.org/zh/guide.html">http://dplayer.js.org/zh/guide.html</a></p>
+<p>为了图省事，我这里使用了 hls.js + DPlayer，直接引入 hls.js 和 dplayer.js 就行</p>
+<p>按照 DPlayer 的指南简单写一下</p>
+<pre><code>&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;女装直播间&lt;/title&gt;
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;DPlayer.min.css&quot; /&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;div id=&quot;dplayer&quot;&gt;&lt;/div&gt;
+    &lt;/body&gt;
+    &lt;script src=&quot;hls.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;DPlayer.min.js&quot;&gt;&lt;/script&gt;
+
+    &lt;script&gt;
+        const dp = new DPlayer(&#123;
+            container: document.getElementById(&#39;dplayer&#39;),
+                live: true,
+            video: &#123;
+                url: &#39;test.m3u8&#39;,
+                type: &#39;hls&#39;,
+            &#125;,
+            pluginOptions: &#123;
+                hls: &#123;
+                    // hls config
+                &#125;,
+            &#125;,
+        &#125;);
+    &lt;/script&gt;
+&lt;/html&gt;
+</code></pre>
+<p><del>(Ctrl+C, Ctrl+V ，摸了</del></p>
+<p>最后效果和首页的差不多</p>
+<h1 id="弹幕服务器"><a href="#弹幕服务器" class="headerlink" title="弹幕服务器"></a>弹幕服务器</h1><p>众所周知，Dplayer 是一个弹幕播放器，那肯定要有弹幕才能尽兴。</p>
+<p>开始我试了一下用官方的 docker 容器来搭建，搭好以后发现这个不太适用于直播，适用于视频类的，所以还是得手撸</p>
+<p>主要思路是点击发送的时候 DPlayer 调用 apiBackend 的 send，然后再走 websocket 发送弹幕，当websocket 接收到新数据的时候再通过 dp.danmaku.draw 进行渲染。</p>
+<p>将 danmaku 的 options 展开还可以指定视频 id、用户之类的，然后为了赶工我就只先搞了视频 id 的，用户啥的还没写</p>
+<p>（视频id我就大概用视频地址md5一下差不多了</p>
+<p>（说起来找了半天才发现这个 danmaku 是可以展开的（</p>
+<h2 id="美化"><a href="#美化" class="headerlink" title="美化"></a>美化</h2><p>利用 Element 来加一点点细节，就很好看啦</p>
+<p><img data-src="/images/Article/Live/Live1.png" alt="/images/Article/Live/Live1.png"></p>
+<h2 id="多人直播间"><a href="#多人直播间" class="headerlink" title="多人直播间"></a>多人直播间</h2><p>根据 Vue-router 和 Vue 的特性，你可以根据路由来动态改变视频地址和直播间名字</p>
+<p><img data-src="/images/Article/Live/otome.png" alt="/images/Article/Live/otome.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%9E%8E%E6%90%9E/" rel="tag"># 瞎搞</a>
+              <a href="/tags/%E7%9B%B4%E6%92%AD/" rel="tag"># 直播</a>
+              <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag"># 服务器</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/Install-ArchLinux-For-Server.html" rel="prev" title="给服务器安装 ArchLinux">
+      <i class="fa fa-chevron-left"></i> 给服务器安装 ArchLinux
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/Happy-New-Year-2020.html" rel="next" title="元旦快乐">
+      元旦快乐 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E7%9B%B4%E6%92%AD%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">安装直播服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Docker-%E5%AE%89%E8%A3%85-nginx-rtmp"><span class="nav-number">2.1.</span> <span class="nav-text">使用 Docker 安装 nginx-rtmp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85-nginx-rtmp"><span class="nav-number">2.2.</span> <span class="nav-text">** 通过编译安装 nginx-rtmp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9-nginx-conf"><span class="nav-number">2.3.</span> <span class="nav-text">修改 nginx.conf</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C-Docker"><span class="nav-number">2.4.</span> <span class="nav-text">运行 Docker</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A8%E6%B5%81"><span class="nav-number">3.</span> <span class="nav-text">推流</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#OBS-%E6%8E%A8%E6%B5%81"><span class="nav-number">3.1.</span> <span class="nav-text">OBS 推流</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FFMPEG-%E6%8E%A8%E6%B5%81%E8%A7%86%E9%A2%91"><span class="nav-number">3.2.</span> <span class="nav-text">FFMPEG 推流视频</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#https-%E5%BC%BA%E8%BF%AB%E7%97%87"><span class="nav-number">3.3.</span> <span class="nav-text">https 强迫症</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E7%AB%AF"><span class="nav-number">4.</span> <span class="nav-text">前端</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%B9%E5%B9%95%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">弹幕服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BE%8E%E5%8C%96"><span class="nav-number">5.1.</span> <span class="nav-text">美化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E4%BA%BA%E7%9B%B4%E6%92%AD%E9%97%B4"><span class="nav-number">5.2.</span> <span class="nav-text">多人直播间</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Guoguo"
+      src="https://guo.moe/favicon.jpg">
+  <p class="site-author-name" itemprop="name">Guoguo</p>
+  <div class="site-description" itemprop="description">找不到路，就自己走一条出来。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/imguoguo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;imguoguo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:blog@guo.moe" title="E-Mail → mailto:blog@guo.moe"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Guoguo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/medium-zoom.min.js"></script>
+  <script src="/lib/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqusjs.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqus.js', () => {
+    window.dsqjs = new DisqusJS({
+      api       : 'https://disqus.guo.moe/api/' || 'https://disqus.com/api/',
+      apikey    : 'TRTXJqZLCwf51OCjLAd1u320K7DxrMxK37Ch9X2xFXy5Q4d2gdVBKeMT33qizKh9',
+      shortname : 'guoguoblog',
+      url       : "https://guo.moe/archives/Build-LiveRoom.html",
+      identifier: "archives/Build-LiveRoom.html",
+      title     : "搭建属于自己的直播间",
+    });
+  }, window.DisqusJS);
+});
+</script>
+
+    </div>
+<script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

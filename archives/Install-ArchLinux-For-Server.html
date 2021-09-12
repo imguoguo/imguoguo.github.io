@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://guo.moe/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://guo.moe/favicon.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"guo.moe","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="注：此处安装不太适合给没有 VNC 管理权限的服务器使用，装炸了难以排查问题 前言之前学校的服务器是 CentOS ，分区是在 &#x2F;dev&#x2F;sda2 上又开了一层 lvm 分区，这种分区方式令我感觉十分不舒服，其中有个原因是根目录空间不够，但 &#x2F;home 分区的空间又大得一坨，遂尝试删除并合并分区。swapoff 并删除+合并以后没问题，但保险起见将备份文件移至我的 NUC 上，改 &#x2F;etc&#x2F;fst">
+<meta property="og:type" content="article">
+<meta property="og:title" content="给服务器安装 ArchLinux">
+<meta property="og:url" content="https://guo.moe/archives/Install-ArchLinux-For-Server.html">
+<meta property="og:site_name" content="果果说">
+<meta property="og:description" content="注：此处安装不太适合给没有 VNC 管理权限的服务器使用，装炸了难以排查问题 前言之前学校的服务器是 CentOS ，分区是在 &#x2F;dev&#x2F;sda2 上又开了一层 lvm 分区，这种分区方式令我感觉十分不舒服，其中有个原因是根目录空间不够，但 &#x2F;home 分区的空间又大得一坨，遂尝试删除并合并分区。swapoff 并删除+合并以后没问题，但保险起见将备份文件移至我的 NUC 上，改 &#x2F;etc&#x2F;fst">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-12-30T01:46:01.000Z">
+<meta property="article:modified_time" content="2020-12-10T04:17:29.000Z">
+<meta property="article:author" content="Guoguo">
+<meta property="article:tag" content="瞎搞">
+<meta property="article:tag" content="ArchLinux">
+<meta property="article:tag" content="服务器">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://guo.moe/archives/Install-ArchLinux-For-Server.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>给服务器安装 ArchLinux | 果果说</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-69554402-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-69554402-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="果果说" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">果果说</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Guoguo's Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/links/" rel="section"><i class="fa fa-user fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://guo.moe/archives/Install-ArchLinux-For-Server.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://guo.moe/favicon.jpg">
+      <meta itemprop="name" content="Guoguo">
+      <meta itemprop="description" content="找不到路，就自己走一条出来。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="果果说">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          给服务器安装 ArchLinux
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-30 09:46:01" itemprop="dateCreated datePublished" datetime="2019-12-30T09:46:01+08:00">2019-12-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-10 12:17:29" itemprop="dateModified" datetime="2020-12-10T12:17:29+08:00">2020-12-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">技术篇</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>注：此处安装不太适合给没有 VNC 管理权限的服务器使用，装炸了难以排查问题</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前学校的服务器是 CentOS ，分区是在 /dev/sda2 上又开了一层 lvm 分区，这种分区方式令我感觉十分不舒服，其中有个原因是根目录空间不够，但 /home 分区的空间又大得一坨，遂尝试删除并合并分区。swapoff 并删除+合并以后没问题，但保险起见将备份文件移至我的 NUC 上，改 /etc/fstab ，然后一重启，打不开机子，上面好像写着无法读取 /dev/centos/swap 分区。（不过我也不是很清楚到底哪里）正当我庆幸自己聪明机智有备份的时候，翻开 NUC 一看，里面几个大字写着</p>
+<span id="more"></span>
+
+<p>Backup.tar.gz**.part**</p>
+<p>然后稍感事情好像不太对，最后费了一天时间来提里面的备份，好不容易提出来。</p>
+<p>（小声BB一句，CentOS 的救援模式似乎没办法联网，所以都是情急下xjb弄的</p>
+<p>（极限操作，开启 CentOS 光盘中的救援模式，挂载系统盘，提取备份文件至 /tmp ，删除分区，重新分区，分一个2G的盘给备份文件，剩下的直接开新分区）</p>
+<p>Q: 系统都坏成这样了，为什么不直接装 ArchLinux？</p>
+<p><del>因为 VMware vSphere 似乎无法挂载自己的 ISO 文件，得主机有这个 iso 文件才能用，</del></p>
+<p>因为学生没有权限挂载自己的 ISO 文件</p>
+<p>而之前还挂着 CentOS 的安装盘，所以就曲线救国，先装一遍 CentOS 再安装 ArchLinux。</p>
+<h1 id="正片"><a href="#正片" class="headerlink" title="正片"></a>正片</h1><blockquote>
+<p>参考资料：<a target="_blank" rel="noopener" href="https://wiki.archlinux.org/index.php/Install_Arch_Linux_from_existing_Linux_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)#%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A%E4%BD%BF%E7%94%A8_Bootstrap_%E9%95%9C%E5%83%8F%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89">https://wiki.archlinux.org/index.php/Install_Arch_Linux_from_existing_Linux</a></p>
+</blockquote>
+<h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><p>直接前往镜像站<a target="_blank" rel="noopener" href="http://mirrors.163.com/archlinux/iso/2019.12.01/">（163）</a>wget一手 archlinux-bootstrap-*-x86.64.tar.gz 到 /tmp 目录，解压至 /tmp</p>
+<h2 id="修改-mirrorlist"><a href="#修改-mirrorlist" class="headerlink" title="修改 mirrorlist"></a>修改 mirrorlist</h2><p>找到 China 的 163 源，取消注释</p>
+<h2 id="放置解析"><a href="#放置解析" class="headerlink" title="放置解析"></a>放置解析</h2><p>为了防止等会装的时候删文件解析出问题，所以先</p>
+<pre><code>rm -f /tmp/root.x86_64/etc/resolv.conf
+cp /etc/resolv.conf /tmp/root.x86_64/etc/
+</code></pre>
+<h2 id="进入-chroot"><a href="#进入-chroot" class="headerlink" title="进入 chroot"></a>进入 chroot</h2><p>记得确认 Bash 版本是否 ≥ 4</p>
+<pre><code>/tmp/root.x86_64/bin/arch-chroot /tmp/root.x86_64/
+</code></pre>
+<p>注：我在此处执行命令的时候出现了这个提示</p>
+<pre><code>unshare: unrecognized option &#39;--fork&#39;
+</code></pre>
+<p>解决方法很简单，更新一下 util-linux 就行了</p>
+<pre><code>yum update -y util-linux
+</code></pre>
+<h2 id="初始化并验证-pacman-密匙环"><a href="#初始化并验证-pacman-密匙环" class="headerlink" title="初始化并验证 pacman 密匙环"></a>初始化并验证 pacman 密匙环</h2><pre><code>pacman-key --init
+pacman-key --populate archlinux
+</code></pre>
+<p>新安装的 CentOS 跑这个特别的慢，按照官方提示，你可以先安装一个 rng-tools</p>
+<pre><code>yum install -y rng-tools
+</code></pre>
+<h2 id="挂载目录"><a href="#挂载目录" class="headerlink" title="挂载目录"></a>挂载目录</h2><p>将 /dev/sda2 挂载到 /mnt ，将 /dev/sda1 挂载到 /mnt/boot</p>
+<pre><code>mount /dev/sda2 /mnt
+mount /dev/sda1 /mnt/boot
+</code></pre>
+<p>删除外围文件夹，将除了 /proc /srv /sys /dev /opt /run /tmp（也就是没法删的）的文件夹都删了</p>
+<p>感觉跟 rm -rf /* 差不多（</p>
+<p><strong>注意：请不要把 /tmp 文件夹给删了，不然这个 chroot 就直接炸掉</strong></p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>接下来的操作就和 <a href="https://guo.moe/archives/ArchLinux-Install-Note.html?_sw-precache=27ead53f1532b28f1de70419a15cb58f">ArchLinux 安装笔记</a> 所提到的差不多了，依次进行笔记所提到的开始安装和基础设置。但这个 VMware vSphere 好像默认是传统引导方式，所以中间的grub安装修改一下 </p>
+<pre><code>pacman -S grub
+grub-install /dev/sda
+grub-mkconfig -o /boot/grub/grub.cfg
+</code></pre>
+<p>就可以了</p>
+<h3 id="配置网络"><a href="#配置网络" class="headerlink" title="配置网络"></a>配置网络</h3><p>注意，这个时候重启是没有网络的，所以要先提前配置好 sshd 和 systemd-networkd ，否则重启以后还要进 vnc 会有点麻烦，编译 /etc/systemd/network/20-wired.network </p>
+<pre><code>[Match]
+Name=ens32 # 网卡名字
+
+[Network]
+Address=172.16.5.233/24 # IP 地址
+Gateway=172.16.5.1
+DNS=172.16.5.1
+</code></pre>
+<p>并执行</p>
+<pre><code>systemctl enable systemd-networkd
+systemctl enable sshd
+</code></pre>
+<p>然后就可以重启了，尝试外部能否连接 ssh？</p>
+<h1 id="后言"><a href="#后言" class="headerlink" title="后言"></a>后言</h1><p>正常来说，这个时候重启就基本能够出现高贵的 ArchLinux 字样了，</p>
+<p><del>虽然过程很艰苦，但还是开心的</del></p>
+<p>开心个屁啊，备份文件提不出来那几次差点被急哭了，还好有 U2 在一旁帮忙</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%9E%8E%E6%90%9E/" rel="tag"># 瞎搞</a>
+              <a href="/tags/ArchLinux/" rel="tag"># ArchLinux</a>
+              <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag"># 服务器</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/ArchLinux-Install-Note.html" rel="prev" title="ArchLinux 安装笔记">
+      <i class="fa fa-chevron-left"></i> ArchLinux 安装笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/Build-LiveRoom.html" rel="next" title="搭建属于自己的直播间">
+      搭建属于自己的直播间 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%A3%E7%89%87"><span class="nav-number">2.</span> <span class="nav-text">正片</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD"><span class="nav-number">2.1.</span> <span class="nav-text">下载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9-mirrorlist"><span class="nav-number">2.2.</span> <span class="nav-text">修改 mirrorlist</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BE%E7%BD%AE%E8%A7%A3%E6%9E%90"><span class="nav-number">2.3.</span> <span class="nav-text">放置解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E5%85%A5-chroot"><span class="nav-number">2.4.</span> <span class="nav-text">进入 chroot</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E5%B9%B6%E9%AA%8C%E8%AF%81-pacman-%E5%AF%86%E5%8C%99%E7%8E%AF"><span class="nav-number">2.5.</span> <span class="nav-text">初始化并验证 pacman 密匙环</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%82%E8%BD%BD%E7%9B%AE%E5%BD%95"><span class="nav-number">2.6.</span> <span class="nav-text">挂载目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">2.7.</span> <span class="nav-text">配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E7%BD%91%E7%BB%9C"><span class="nav-number">2.7.1.</span> <span class="nav-text">配置网络</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%8E%E8%A8%80"><span class="nav-number">3.</span> <span class="nav-text">后言</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Guoguo"
+      src="https://guo.moe/favicon.jpg">
+  <p class="site-author-name" itemprop="name">Guoguo</p>
+  <div class="site-description" itemprop="description">找不到路，就自己走一条出来。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/imguoguo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;imguoguo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:blog@guo.moe" title="E-Mail → mailto:blog@guo.moe"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Guoguo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/medium-zoom.min.js"></script>
+  <script src="/lib/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqusjs.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqus.js', () => {
+    window.dsqjs = new DisqusJS({
+      api       : 'https://disqus.guo.moe/api/' || 'https://disqus.com/api/',
+      apikey    : 'TRTXJqZLCwf51OCjLAd1u320K7DxrMxK37Ch9X2xFXy5Q4d2gdVBKeMT33qizKh9',
+      shortname : 'guoguoblog',
+      url       : "https://guo.moe/archives/Install-ArchLinux-For-Server.html",
+      identifier: "archives/Install-ArchLinux-For-Server.html",
+      title     : "给服务器安装 ArchLinux",
+    });
+  }, window.DisqusJS);
+});
+</script>
+
+    </div>
+<script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

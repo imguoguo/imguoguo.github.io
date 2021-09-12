@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://guo.moe/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://guo.moe/favicon.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"guo.moe","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="第二讲为了照顾各个同学的网络，所以听讲的同学们请至少提前一天完成以下操作，节省时间就能提早讲完。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="不 锈 钢 牌 讲 师 —— WordPress 在 docker-lemp 上的安装">
+<meta property="og:url" content="https://guo.moe/archives/WordPress-Installation.html">
+<meta property="og:site_name" content="果果说">
+<meta property="og:description" content="第二讲为了照顾各个同学的网络，所以听讲的同学们请至少提前一天完成以下操作，节省时间就能提早讲完。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guo.moe/images/Article/Ubuntu-Installation-WordPress//Untitled%202.png">
+<meta property="og:image" content="https://guo.moe/images/Article/Ubuntu-Installation-WordPress//Untitled%203.png">
+<meta property="og:image" content="https://guo.moe/images/Article/Ubuntu-Installation-WordPress//Untitled%204.png">
+<meta property="article:published_time" content="2020-07-20T02:00:00.000Z">
+<meta property="article:modified_time" content="2021-06-11T09:18:07.000Z">
+<meta property="article:author" content="Guoguo">
+<meta property="article:tag" content="工作室">
+<meta property="article:tag" content="培训">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guo.moe/images/Article/Ubuntu-Installation-WordPress//Untitled%202.png">
+
+<link rel="canonical" href="https://guo.moe/archives/WordPress-Installation.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>不 锈 钢 牌 讲 师 —— WordPress 在 docker-lemp 上的安装 | 果果说</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-69554402-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-69554402-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="果果说" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">果果说</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Guoguo's Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/links/" rel="section"><i class="fa fa-user fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://guo.moe/archives/WordPress-Installation.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://guo.moe/favicon.jpg">
+      <meta itemprop="name" content="Guoguo">
+      <meta itemprop="description" content="找不到路，就自己走一条出来。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="果果说">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          不 锈 钢 牌 讲 师 —— WordPress 在 docker-lemp 上的安装
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-20 10:00:00" itemprop="dateCreated datePublished" datetime="2020-07-20T10:00:00+08:00">2020-07-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-11 17:18:07" itemprop="dateModified" datetime="2021-06-11T17:18:07+08:00">2021-06-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">技术篇</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="第二讲"><a href="#第二讲" class="headerlink" title="第二讲"></a>第二讲</h1><p>为了照顾各个同学的网络，所以听讲的同学们请至少提前一天完成以下操作，节省时间就能提早讲完。</p>
+<span id="more"></span>
+
+<h2 id="提前-下载-WordPress-压缩包"><a href="#提前-下载-WordPress-压缩包" class="headerlink" title="(提前) 下载 WordPress 压缩包"></a>(提前) 下载 WordPress 压缩包</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span></span><br><span class="line">wget https://wordpress.org/latest.zip</span><br></pre></td></tr></table></figure>
+
+<h2 id="提前-安装-docker-等必要套件"><a href="#提前-安装-docker-等必要套件" class="headerlink" title="(提前) 安装 docker 等必要套件"></a>(提前) 安装 docker 等必要套件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install -y unzip git docker.io docker-compose</span><br></pre></td></tr></table></figure>
+
+<h2 id="提前-更换-Docker-镜像源"><a href="#提前-更换-Docker-镜像源" class="headerlink" title="(提前) 更换 Docker 镜像源"></a>(提前) 更换 Docker 镜像源</h2><p>参考资料：<a target="_blank" rel="noopener" href="https://blog.csdn.net/whatday/article/details/86770609">https://blog.csdn.net/whatday/article/details/86770609</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/docker/daemon.json</span><br><span class="line"><span class="comment"># 修改为以下内容</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;registry-mirrors&quot;</span>: [<span class="string">&quot;http://hub-mirror.c.163.com&quot;</span>]</span><br><span class="line">&#125;</span><br><span class="line">sudo systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<h2 id="提前-拉取-Docker-镜像"><a href="#提前-拉取-Docker-镜像" class="headerlink" title="(提前) 拉取 Docker 镜像"></a>(提前) 拉取 Docker 镜像</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo docker pull metowolf/php:7.4.6</span><br><span class="line">sudo docker pull mysql/mysql-server:8.0.20</span><br><span class="line">sudo docker pull phpmyadmin/phpmyadmin:5.0.2</span><br><span class="line">sudo docker pull metowolf/nginx:1.17.10</span><br><span class="line">sudo docker pull redis:6.0.2-alpine</span><br></pre></td></tr></table></figure>
+
+<h2 id="metowolf-docker-lemp-部署"><a href="#metowolf-docker-lemp-部署" class="headerlink" title="metowolf/docker-lemp 部署"></a>metowolf/docker-lemp 部署</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/metowolf/docker-lemp.git</span><br><span class="line"><span class="built_in">cd</span> docker-lemp</span><br><span class="line">cp .env.example .env</span><br><span class="line">cp docker-compose.example.yml docker-compose.yml</span><br><span class="line"><span class="comment"># 修改 .env</span></span><br><span class="line">vim .env</span><br><span class="line"><span class="comment"># 将 MYSQL_ROOT_PASSWORD=root 中的 root 改成你想要的密码</span></span><br><span class="line"><span class="comment"># 或者尝试 sed -i &#x27;s/root/密码/g&#x27; .env</span></span><br><span class="line">sudo docker-compose up -d</span><br></pre></td></tr></table></figure>
+
+<h2 id="访问网站"><a href="#访问网站" class="headerlink" title="访问网站"></a>访问网站</h2><p>在浏览器中打开上面的 IP，浏览器正常输出 phpinfo();</p>
+<h2 id="WordPress-部署"><a href="#WordPress-部署" class="headerlink" title="WordPress 部署"></a>WordPress 部署</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> wwwroot/default</span><br><span class="line">rm -f index.php</span><br><span class="line">mv ~/latest.zip .</span><br><span class="line">unzip latest.zip</span><br><span class="line">mv wordpress/* .</span><br><span class="line">rm -rf wordpress/</span><br></pre></td></tr></table></figure>
+
+<h3 id="在-phpmyadmin-创建新数据库"><a href="#在-phpmyadmin-创建新数据库" class="headerlink" title="在 phpmyadmin 创建新数据库"></a>在 phpmyadmin 创建新数据库</h3><p>浏览器登入 ip:8080 ，输入账号 root 和刚设的密码，点击数据库，输入数据库名，创建数据库</p>
+<p><img data-src="/images/Article/Ubuntu-Installation-WordPress//Untitled%202.png" alt="/images/Article/Ubuntu-Installation-WordPress//Untitled%202.png"></p>
+<p>这边为了节省时间就暂时不分离账户了，有兴趣的小伙伴也可以自行搜索方法或者直接创建账户分权。</p>
+<h3 id="WordPress-向导数据库填写"><a href="#WordPress-向导数据库填写" class="headerlink" title="WordPress 向导数据库填写"></a>WordPress 向导数据库填写</h3><p><img data-src="/images/Article/Ubuntu-Installation-WordPress//Untitled%203.png" alt="/images/Article/Ubuntu-Installation-WordPress//Untitled%203.png"></p>
+<p>注意向导这里，数据库填写刚才创建的数据库，密码填写刚才修改的密码，主机填写 mysql</p>
+<p>然后可能会遇到</p>
+<p><img data-src="/images/Article/Ubuntu-Installation-WordPress//Untitled%204.png" alt="/images/Article/Ubuntu-Installation-WordPress//Untitled%204.png"></p>
+<p>输入 </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim ~/docker-lemp/wwwroot/default/wp-config.php</span><br></pre></td></tr></table></figure>
+
+<p>将上面的内容复制到其中，保存</p>
+<p>站点信息自己设置一下，就可以完成了</p>
+<h1 id="废弃方案"><a href="#废弃方案" class="headerlink" title="废弃方案"></a>废弃方案</h1><p>这边堆放复杂的废弃方案</p>
+<h2 id="废弃-安装-docker"><a href="#废弃-安装-docker" class="headerlink" title="(废弃) 安装 docker"></a>(废弃) 安装 docker</h2><p>参考资料：<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/install/ubuntu/">https://docs.docker.com/engine/install/ubuntu/</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install \</span><br><span class="line">  apt-transport-https \</span><br><span class="line">  ca-certificates \</span><br><span class="line">  curl \</span><br><span class="line">  gnupg-agent \</span><br><span class="line">  software-properties-common</span><br><span class="line">curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -</span><br><span class="line">sudo add-apt-repository \</span><br><span class="line"> <span class="string">&quot;deb [arch=amd64] https://download.docker.com/linux/ubuntu \</span></span><br><span class="line"><span class="string"> <span class="subst">$(lsb_release -cs)</span> \</span></span><br><span class="line"><span class="string"> stable&quot;</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install docker-ce docker-ce-cli containerd.io</span><br></pre></td></tr></table></figure>
+
+<h2 id="废弃-安装-docker-compose"><a href="#废弃-安装-docker-compose" class="headerlink" title="(废弃) 安装 docker-compose"></a>(废弃) 安装 docker-compose</h2><p>参考资料：<a target="_blank" rel="noopener" href="https://docs.docker.com/compose/install/">https://docs.docker.com/compose/install/</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo curl -L <span class="string">&quot;https://github.com/docker/compose/releases/download/1.26.2/docker-compose-<span class="subst">$(uname -s)</span>-<span class="subst">$(uname -m)</span>&quot;</span> -o /usr/<span class="built_in">local</span>/bin/docker-compose</span><br><span class="line">sudo chmod +x /usr/<span class="built_in">local</span>/bin/docker-compose</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B7%A5%E4%BD%9C%E5%AE%A4/" rel="tag"># 工作室</a>
+              <a href="/tags/%E5%9F%B9%E8%AE%AD/" rel="tag"># 培训</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/Ubuntu-Installation.html" rel="prev" title="不 锈 钢 牌 讲 师 —— Ubuntu 的安装与基本命令">
+      <i class="fa fa-chevron-left"></i> 不 锈 钢 牌 讲 师 —— Ubuntu 的安装与基本命令
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/code-at-iPad.html" rel="next" title="来！试试用 iPad 来写代码吧！">
+      来！试试用 iPad 来写代码吧！ <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E8%AE%B2"><span class="nav-number">1.</span> <span class="nav-text">第二讲</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E5%89%8D-%E4%B8%8B%E8%BD%BD-WordPress-%E5%8E%8B%E7%BC%A9%E5%8C%85"><span class="nav-number">1.1.</span> <span class="nav-text">(提前) 下载 WordPress 压缩包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E5%89%8D-%E5%AE%89%E8%A3%85-docker-%E7%AD%89%E5%BF%85%E8%A6%81%E5%A5%97%E4%BB%B6"><span class="nav-number">1.2.</span> <span class="nav-text">(提前) 安装 docker 等必要套件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E5%89%8D-%E6%9B%B4%E6%8D%A2-Docker-%E9%95%9C%E5%83%8F%E6%BA%90"><span class="nav-number">1.3.</span> <span class="nav-text">(提前) 更换 Docker 镜像源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E5%89%8D-%E6%8B%89%E5%8F%96-Docker-%E9%95%9C%E5%83%8F"><span class="nav-number">1.4.</span> <span class="nav-text">(提前) 拉取 Docker 镜像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#metowolf-docker-lemp-%E9%83%A8%E7%BD%B2"><span class="nav-number">1.5.</span> <span class="nav-text">metowolf&#x2F;docker-lemp 部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E7%BD%91%E7%AB%99"><span class="nav-number">1.6.</span> <span class="nav-text">访问网站</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WordPress-%E9%83%A8%E7%BD%B2"><span class="nav-number">1.7.</span> <span class="nav-text">WordPress 部署</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8-phpmyadmin-%E5%88%9B%E5%BB%BA%E6%96%B0%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">1.7.1.</span> <span class="nav-text">在 phpmyadmin 创建新数据库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WordPress-%E5%90%91%E5%AF%BC%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A1%AB%E5%86%99"><span class="nav-number">1.7.2.</span> <span class="nav-text">WordPress 向导数据库填写</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%9F%E5%BC%83%E6%96%B9%E6%A1%88"><span class="nav-number">2.</span> <span class="nav-text">废弃方案</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%9F%E5%BC%83-%E5%AE%89%E8%A3%85-docker"><span class="nav-number">2.1.</span> <span class="nav-text">(废弃) 安装 docker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%9F%E5%BC%83-%E5%AE%89%E8%A3%85-docker-compose"><span class="nav-number">2.2.</span> <span class="nav-text">(废弃) 安装 docker-compose</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Guoguo"
+      src="https://guo.moe/favicon.jpg">
+  <p class="site-author-name" itemprop="name">Guoguo</p>
+  <div class="site-description" itemprop="description">找不到路，就自己走一条出来。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/imguoguo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;imguoguo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:blog@guo.moe" title="E-Mail → mailto:blog@guo.moe"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Guoguo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/medium-zoom.min.js"></script>
+  <script src="/lib/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqusjs.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqus.js', () => {
+    window.dsqjs = new DisqusJS({
+      api       : 'https://disqus.guo.moe/api/' || 'https://disqus.com/api/',
+      apikey    : 'TRTXJqZLCwf51OCjLAd1u320K7DxrMxK37Ch9X2xFXy5Q4d2gdVBKeMT33qizKh9',
+      shortname : 'guoguoblog',
+      url       : "https://guo.moe/archives/WordPress-Installation.html",
+      identifier: "archives/WordPress-Installation.html",
+      title     : "不 锈 钢 牌 讲 师 —— WordPress 在 docker-lemp 上的安装",
+    });
+  }, window.DisqusJS);
+});
+</script>
+
+    </div>
+<script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

